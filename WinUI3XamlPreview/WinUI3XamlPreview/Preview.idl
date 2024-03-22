@@ -1,0 +1,7 @@
+namespace WinUI3XamlPreview
+{
+unsealed runtimeclass Preview
+{
+static Windows.Foundation.IAsyncOperation<Boolean> IsXamlPreviewLaunched();
+}
+}

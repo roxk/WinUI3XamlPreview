@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TestPackagedCs (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
+    },
+    "TestPackagedCs (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

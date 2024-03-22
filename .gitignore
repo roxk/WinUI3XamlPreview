@@ -1,0 +1,14 @@
+bin
+obj
+.vs
+*.nupkg
+AnyCPU
+x64
+ARM64
+Debug
+Release
+*.user
+Generated Files
+*.bak
+_*.vcxproj
+packages

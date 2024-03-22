@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<!-- Only do this for MSBuild versions below 16.0
+             as it is since done automatically, see https://github.com/microsoft/msbuild/pull/3605-->
+		<MSBuildAllProjects Condition="'$(MSBuildToolsVersion)'  &lt;= '15'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+	</PropertyGroup>
+	<PropertyGroup>
+		<WinUI3XPToolsPath>$(MSBuildThisFileDirectory)..\..\tools\</WinUI3XPToolsPath>
+		<WinUI3XPEnabled Condition="'$(WinUI3XPEnabled)' == ''">true</WinUI3XPEnabled>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Native-Platform Condition="'$(Platform)' == 'Win32'">x86</Native-Platform>
+		<Native-Platform Condition="'$(Platform)' != 'Win32'">$(Platform)</Native-Platform>
+	</PropertyGroup>
+	<ItemGroup Condition="$(WinUI3XPEnabled)">
+		<Reference Include="$(MSBuildThisFileDirectory)..\..\lib\uap10.0\WinUI3XamlPreview.winmd">
+			<Implementation>WinUI3XamlPreview.dll</Implementation>
+		</Reference>
+		<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\win10-$(Native-Platform)\native\WinUI3XamlPreview.dll" />
+		<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\win10-$(Native-Platform)\native\WinUI3XamlPreview.pri" />
+	</ItemGroup>
+</Project>

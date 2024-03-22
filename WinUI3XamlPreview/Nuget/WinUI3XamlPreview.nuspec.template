@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+	<metadata>
+		<id>WinUI3XamlPreview.WinUI3XamlPreview</id>
+		<version>VERSION</version>
+		<title>WinUI3XamlPreview.WinUI3XamlPreview</title>
+		<authors>Roxk Yiu</authors>
+		<owners>Roxk Yiu</owners>
+		<description>This package allows developers to see a live preview while writing XAML in WinUI 3.</description>
+		<copyright>Copyright 2022</copyright>
+		<tags>WinUI 3 WinUI3 XAML Preview</tags>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="file">LICENSE</license>
+		<projectUrl>https://github.com/roxk/WinUI3XamlPreview</projectUrl>
+
+		<!-- WASDK using non-standard version causing nuget pack to complain -->
+		<!--<dependencies>
+			<dependency id="Microsoft.WindowsAppSDK" version="[1.4.230913002)" />
+		</dependencies>-->
+	</metadata>
+	<files>
+		<file src="..\..\README.md"/>
+		<file src="..\..\LICENSE"/>
+
+		<!-- Ref: https://docs.microsoft.com/en-us/nuget/guides/create-uwp-packages -->
+		<!-- Note: Only WinRT stuff use namespace as file name, i.e. winmd and pri -->
+		<!-- Others use project name as file name -->
+		<file target="lib\uap10.0" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.winmd"/>
+		<file target="lib\uap10.0" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.xml"/>
+
+		<!-- Themes -->
+		<file target="lib\uap10.0\WinUI3XamlPreview" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
+
+		<!-- Platform DLLs and resources -->
+		<!--<file target="runtimes\win10-arm64\native\WinUI3XamlPreview.dll" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />-->
+		<!--<file target="runtimes\win10-arm64\native" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />-->
+		<!--<file target="runtimes\win10-arm64\native\WinUI3XamlPreview\Assets" src="..\WinUI3XamlPreview\arm64\Release\WinUI3XamlPreview\Assets\**\*.*"/>-->
+		<file target="runtimes\win10-x64\native\WinUI3XamlPreview" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
+		<file target="runtimes\win10-x64\native\WinUI3XamlPreview.dll"   src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />
+		<file target="runtimes\win10-x64\native" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />
+
+		<file target="build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets" src="WinUI3XamlPreview-Native.targets"/>
+
+		<file target="resources\preview_main.cpp" src="preview_main.cpp"/>
+		<file target="resources\Preview.vcxproj" src="Preview.vcxproj"/>
+
+		<file target="tools\replace-namespace.ps1" src="replace-namespace.ps1"/>
+	</files>
+</package>

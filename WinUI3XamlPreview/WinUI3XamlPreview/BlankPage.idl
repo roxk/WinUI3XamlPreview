@@ -1,0 +1,8 @@
+namespace WinUI3XamlPreview
+{
+unsealed runtimeclass BlankPage : Microsoft.UI.Xaml.Controls.Page
+{
+BlankPage();
+void OnFilePathChanged(Object sender, String e);
+}
+}

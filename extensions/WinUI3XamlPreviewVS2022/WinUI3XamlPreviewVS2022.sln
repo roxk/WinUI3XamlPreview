@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUI3XamlPreviewVS2022", "WinUI3XamlPreviewVS2022\WinUI3XamlPreviewVS2022.csproj", "{196A489D-C45B-4397-912F-AF7642511D07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{836BDD78-75CC-4CD3-A36A-3CAE03AD42DF}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{196A489D-C45B-4397-912F-AF7642511D07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{196A489D-C45B-4397-912F-AF7642511D07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{196A489D-C45B-4397-912F-AF7642511D07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{196A489D-C45B-4397-912F-AF7642511D07}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {27737A00-9A8F-4174-8CF2-0134D1FC3C42}
+	EndGlobalSection
+EndGlobal
