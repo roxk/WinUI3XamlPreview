@@ -35,8 +35,12 @@ namespace winrt::TestNuget::implementation
     /// Invoked when the application is launched.
     /// </summary>
     /// <param name="e">Details about the launch request and process.</param>
-    void App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
+    winrt::fire_and_forget App::OnLaunched([[maybe_unused]] LaunchActivatedEventArgs const& e)
     {
+        if (co_await WinUI3XamlPreview::Preview::IsXamlPreviewLaunched())
+        {
+            co_return;
+        }
         window = make<MainWindow>();
         window.Activate();
     }

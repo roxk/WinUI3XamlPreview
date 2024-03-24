@@ -25,25 +25,23 @@
 		<!-- Ref: https://docs.microsoft.com/en-us/nuget/guides/create-uwp-packages -->
 		<!-- Note: Only WinRT stuff use namespace as file name, i.e. winmd and pri -->
 		<!-- Others use project name as file name -->
-		<file target="lib\uap10.0" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.winmd"/>
-		<file target="lib\uap10.0" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.xml"/>
+		<file target="lib\uap10.0" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.winmd"/>
+		<file target="lib\uap10.0" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.xml"/>
 
 		<!-- Themes -->
-		<file target="lib\uap10.0\WinUI3XamlPreview" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
+		<file target="lib\uap10.0\WinUI3XamlPreview" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
 
 		<!-- Platform DLLs and resources -->
 		<!--<file target="runtimes\win10-arm64\native\WinUI3XamlPreview.dll" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />-->
 		<!--<file target="runtimes\win10-arm64\native" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />-->
 		<!--<file target="runtimes\win10-arm64\native\WinUI3XamlPreview\Assets" src="..\WinUI3XamlPreview\arm64\Release\WinUI3XamlPreview\Assets\**\*.*"/>-->
-		<file target="runtimes\win10-x64\native\WinUI3XamlPreview" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
-		<file target="runtimes\win10-x64\native\WinUI3XamlPreview.dll"   src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />
-		<file target="runtimes\win10-x64\native" src="..\WinUI3XamlPreview\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />
+		<file target="runtimes\win10-x64\native\WinUI3XamlPreview" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
+		<file target="runtimes\win10-x64\native\WinUI3XamlPreview.dll"   src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />
+		<file target="runtimes\win10-x64\native" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />
 
 		<file target="build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets" src="WinUI3XamlPreview-Native.targets"/>
 
-		<file target="resources\preview_main.cpp" src="preview_main.cpp"/>
-		<file target="resources\Preview.vcxproj" src="Preview.vcxproj"/>
-
-		<file target="tools\replace-namespace.ps1" src="replace-namespace.ps1"/>
+		<!-- .NET projection -->
+		<file target="lib\net6.0-windows10.0.22621.0\WinUI3XamlPreviewCs.dll"  src="..\AnyCPU\Release\WinUI3XamlPreviewCs\bin\WinUI3XamlPreviewCs.dll" />
 	</files>
 </package>

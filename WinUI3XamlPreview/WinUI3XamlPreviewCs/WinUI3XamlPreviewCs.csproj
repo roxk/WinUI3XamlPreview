@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+	<Platform>AnyCPU</Platform>
+	<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<CsWinRTIncludes>WinUI3XamlPreview</CsWinRTIncludes>
+		<CsWinRTGeneratedFilesDir>$(OutDir)</CsWinRTGeneratedFilesDir>
+	</PropertyGroup>
+
+	<ItemGroup>
+      <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.7" />
+      <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230913002" />
+      <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
+  </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\WinUI3XamlPreview\WinUI3XamlPreview.vcxproj" />
+	</ItemGroup>
+</Project>
