@@ -41,7 +41,7 @@ namespace winrt::TestPackaged::implementation
         {
             co_return;
         }
-        window = make<MainWindow>();
+        window = winrt::make<MainWindow>();
         window.Activate();
     }
 }

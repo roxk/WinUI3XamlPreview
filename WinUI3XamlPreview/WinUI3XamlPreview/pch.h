@@ -1,4 +1,5 @@
 #pragma once
+#define NOMINMAX
 #include <windows.h>
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
@@ -31,6 +32,7 @@ namespace winrt
 {
     namespace waa = Windows::ApplicationModel::Activation;
     namespace wf = Windows::Foundation;
+    namespace wfc = Windows::Foundation::Collections;
     namespace ws = Windows::Storage;
     namespace mux = Microsoft::UI::Xaml;
     namespace muxc = Microsoft::UI::Xaml::Controls;

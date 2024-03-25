@@ -1,0 +1,10 @@
+namespace WinUI3XamlPreview
+{
+unsealed runtimeclass MainPage : Microsoft.UI.Xaml.Controls.Page
+{
+MainPage();
+static String ResolutionDisplay(Object resolutionFloat2);
+static String ScaleDisplay(Double scalePercentage);
+static Windows.Foundation.Collections.IVector<Object> Resolutions();
+}
+}

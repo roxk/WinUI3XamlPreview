@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Page Include="MainWindow.xaml" />
-    <Page Include="BlankPage.xaml" />
+    <Page Include="MainPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -49,6 +49,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Nuget\Preview.vcxproj" />
+    <None Include="WinUI3XamlPreview.def" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />

@@ -105,8 +105,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BlankPage.xaml.h">
-      <DependentUpon>BlankPage.xaml</DependentUpon>
+    <ClInclude Include="MainPage.xaml.h">
+      <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="pch.h" />
@@ -119,15 +119,15 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="BlankPage.xaml">
+    <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="BlankPage.xaml.cpp">
-      <DependentUpon>BlankPage.xaml</DependentUpon>
+    <ClCompile Include="MainPage.xaml.cpp">
+      <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -142,8 +142,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="BlankPage.idl">
-      <DependentUpon>BlankPage.xaml</DependentUpon>
+    <Midl Include="MainPage.idl">
+      <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="MainWindow.idl">
@@ -211,12 +211,12 @@
     <Error Condition="!Exists('..\packages\IdlGen.IdlGen.Cpp.0.2.2\build\native\IdlGen.IdlGen.Cpp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IdlGen.IdlGen.Cpp.0.2.2\build\native\IdlGen.IdlGen.Cpp.props'))" />
     <Error Condition="!Exists('..\packages\IdlGen.IdlGen.Cpp.0.2.2\build\native\IdlGen.IdlGen.Cpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IdlGen.IdlGen.Cpp.0.2.2\build\native\IdlGen.IdlGen.Cpp.targets'))" />
   </Target>
-	<Target Name="GetPriIndexName">
-		<PropertyGroup>
-			<!-- Winmd library targets use the default root namespace of the project for the App package name -->
-			<PriIndexName Condition="'$(RootNamespace)' != ''">$(RootNamespace)</PriIndexName>
-			<!-- If RootNamespace is empty fall back to TargetName -->
-			<PriIndexName Condition="$(PriIndexName) == ''">$(TargetName)</PriIndexName>
-		</PropertyGroup>
-	</Target>
+  <Target Name="GetPriIndexName">
+    <PropertyGroup>
+      <!-- Winmd library targets use the default root namespace of the project for the App package name -->
+      <PriIndexName Condition="'$(RootNamespace)' != ''">$(RootNamespace)</PriIndexName>
+      <!-- If RootNamespace is empty fall back to TargetName -->
+      <PriIndexName Condition="$(PriIndexName) == ''">$(TargetName)</PriIndexName>
+    </PropertyGroup>
+  </Target>
 </Project>
