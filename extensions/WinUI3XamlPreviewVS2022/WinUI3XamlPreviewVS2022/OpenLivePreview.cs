@@ -56,7 +56,7 @@ namespace WinUI3XamlPreviewVS2022
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            ClosePreview();
+            TurnOffPreview();
         }
 
         /// <inheritdoc />
@@ -72,7 +72,7 @@ namespace WinUI3XamlPreviewVS2022
         {
             if (IsChecked)
             {
-                ClosePreview();
+                TurnOffPreview();
             }
             else
             {
@@ -92,7 +92,7 @@ namespace WinUI3XamlPreviewVS2022
             await OpenAsync(doc.FilePath ?? "", cancellationToken);
         }
 
-        private void ClosePreview()
+        private void TurnOffPreview()
         {
             _documentSub?.Dispose();
             _documentSub = null;
@@ -147,7 +147,10 @@ namespace WinUI3XamlPreviewVS2022
                     }
                 }
                 var urlencodedPath = WebUtility.UrlEncode(path);
-                // TODO: If opening a different project's file, close previous app
+                if (_lastOpenedAppPath != null && _lastOpenedAppPath != previewAppPath)
+                {
+                    TryCloseLastOpenedApp();
+                }
                 Process.Start(previewAppPath, $"----ms-protocol:winui3xp://show?filePath=\"{urlencodedPath}\"");
                 _lastOpenedAppPath = previewAppPath;
             }
