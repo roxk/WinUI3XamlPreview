@@ -122,13 +122,22 @@ namespace WinUI3XamlPreviewVS2022
                 {
                     return;
                 }
-                var buildManager = await VS.Services.GetSolutionBuildManagerAsync();
-                var projectPath = docProject.FullPath;
-                var projectName = docProject.Name;
-                var originalOutDir = await docProject.GetAttributeAsync("OutDir");
-                var outDir = Path.Combine(originalOutDir, "..");
-                var previewProjectName = $"_{docProject.Name}_Preview";
-                var previewAppPath = Path.Combine(outDir ?? "", $"{previewProjectName}\\{previewProjectName}.exe");
+                var targetName = await docProject.GetAttributeAsync("TargetName");
+                var isPackaged = (await docProject.GetAttributeAsync("AppxPackage")) == "true";
+                string previewAppPath;
+                if (isPackaged)
+                {
+                    previewAppPath = $"{targetName}-WinUI3XP";
+                }
+                else
+                {
+                    var projectPath = docProject.FullPath;
+                    var projectName = docProject.Name;
+                    var originalOutDir = await docProject.GetAttributeAsync("OutDir");
+                    var outDir = Path.Combine(originalOutDir, "..");
+                    var previewProjectName = $"_{docProject.Name}_Preview";
+                    previewAppPath = Path.Combine(outDir ?? "", $"{previewProjectName}\\{previewProjectName}.exe");
+                }
                 var urlencodedPath = WebUtility.UrlEncode(path);
                 // TODO: If opening a different project's file, close previous app
                 Process.Start(previewAppPath, $"----ms-protocol:winui3xp://show?filePath=\"{urlencodedPath}\"");
