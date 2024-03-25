@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "TestNonPackagedCs (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

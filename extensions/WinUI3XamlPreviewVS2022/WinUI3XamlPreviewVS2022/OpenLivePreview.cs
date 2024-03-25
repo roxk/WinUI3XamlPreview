@@ -30,24 +30,24 @@ namespace WinUI3XamlPreviewVS2022
     }
 
     [VisualStudioContribution]
-    internal class OpenLivePreview : Command, IToggleCommand, IDocumentEventsListener
+    internal class ToggleLivePreview : Command, IToggleCommand, IDocumentEventsListener
     {
         private readonly TraceSource _logger;
         private OutputWindow? _outWindow;
         private IDisposable? _documentSub;
         private string? _lastOpenedAppPath;
 
-        public OpenLivePreview(TraceSource traceSource)
+        public ToggleLivePreview(TraceSource traceSource)
         {
             _logger = Requires.NotNull(traceSource, nameof(traceSource));
         }
 
         /// <inheritdoc />
-        public override CommandConfiguration CommandConfiguration => new("%WinUI3XamlPreviewVS2022.OpenLivePreview.DisplayName%")
+        public override CommandConfiguration CommandConfiguration => new("%WinUI3XamlPreviewVS2022.ToggleLivePreview.DisplayName%")
         {
             // Use this object initializer to set optional parameters for the command. The required parameter,
             // displayName, is set above. DisplayName is localized and references an entry in .vsextension\string-resources.json.
-            Icon = new(ImageMoniker.KnownValues.Extension, IconSettings.IconAndText),
+            Icon = new(ImageMoniker.KnownValues.MarkupXML, IconSettings.IconAndText),
             Placements = [CommandPlacement.KnownPlacements.ExtensionsMenu],
         };
 
@@ -133,10 +133,18 @@ namespace WinUI3XamlPreviewVS2022
                 {
                     var projectPath = docProject.FullPath;
                     var projectName = docProject.Name;
-                    var originalOutDir = await docProject.GetAttributeAsync("OutDir");
-                    var outDir = Path.Combine(originalOutDir, "..");
-                    var previewProjectName = $"_{docProject.Name}_Preview";
-                    previewAppPath = Path.Combine(outDir ?? "", $"{previewProjectName}\\{previewProjectName}.exe");
+                    var outDir = await docProject.GetAttributeAsync("OutDir");
+                    previewAppPath = Path.Combine(outDir ?? "", $"{targetName}.exe");
+                    // Cs project outdir is relative...Use uri to detect. Relative path somehow throw in ctor
+                    try
+                    {
+                        var uri = new Uri(previewAppPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        var projectDir = await docProject.GetAttributeAsync("ProjectDir");
+                        previewAppPath = Path.Combine(projectDir, previewAppPath);
+                    }
                 }
                 var urlencodedPath = WebUtility.UrlEncode(path);
                 // TODO: If opening a different project's file, close previous app
