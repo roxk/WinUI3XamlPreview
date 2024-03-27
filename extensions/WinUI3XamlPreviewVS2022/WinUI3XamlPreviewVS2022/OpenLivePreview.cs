@@ -99,14 +99,11 @@ namespace WinUI3XamlPreviewVS2022
             await OpenAsync(doc.FilePath ?? "", cancellationToken);
         }
 
-        private void TurnOffPreview(bool closeLastOpendApp = true)
+        private void TurnOffPreview()
         {
             _documentSub?.Dispose();
             _documentSub = null;
-            if (closeLastOpendApp)
-            {
-                TryCloseLastOpenedApp();
-            }
+            TryCloseLastOpenedApp();
             _lastOpenedInfo = null;
             _lastOpenedAppWaitSource?.Cancel();
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsChecked)));
@@ -207,7 +204,7 @@ namespace WinUI3XamlPreviewVS2022
                 await process.WaitForExitAsync(source.Token);
                 if (_lastOpenedInfo?.AppPath == lastOpendAppPath && _documentSub != null)
                 {
-                    TurnOffPreview(false);
+                    TurnOffPreview();
                 }
             }
             catch (TaskCanceledException ex)
