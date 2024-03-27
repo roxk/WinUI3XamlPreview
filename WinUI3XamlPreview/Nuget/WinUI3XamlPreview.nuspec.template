@@ -12,7 +12,7 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="file">LICENSE</license>
 		<projectUrl>https://github.com/roxk/WinUI3XamlPreview</projectUrl>
-
+		<readme>README.md</readme>
 		<!-- WASDK using non-standard version causing nuget pack to complain -->
 		<!--<dependencies>
 			<dependency id="Microsoft.WindowsAppSDK" version="[1.4.230913002)" />
