@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json.schemastore.org/vsix-publish",
+  "categories": [ "programming languages" ],
+  "identity": {
+    "internalName": "winui3xamlpreview",
+    "tags": [ "WinUI3", "WinUI 3", "WinUI", "XAML", "Preview", "Live Preview" ]
+  },
+  "assetFiles": [],
+  "overview": "README.md",
+  "publisher": "Roxk",
+  "repo": "https://github.com/roxk/WinUI3XamlPreview"
+}

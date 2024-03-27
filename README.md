@@ -1,18 +1,21 @@
 # WinUI 3 Xaml Preview (WinUI3XP)
 
 [![nuget](https://img.shields.io/nuget/v/WinUI3XamlPreview)](https://www.nuget.org/packages/WinUI3XamlPreview/)
+[![VS2022](https://img.shields.io/visual-studio-marketplace/v/Roxk.winui3xamlpreview.svg?label=Visual%20Studio%202022%20(Preview))](https://marketplace.visualstudio.com/items?itemName=Roxk.winui3xamlpreview)
 [![CI](https://github.com/roxk/WinUI3XamlPreview/actions/workflows/ci.yaml/badge.svg)](https://github.com/roxk/WinUI3XamlPreview/actions/workflows/ci.yaml)
+
+![Image showcasing how to use WinUI 3 Xaml Preview](hero-banner.gif)
 
 WinUI3 Xaml Preview allows you to see a a live preview of your UI while authoring XAML. It is fast, reliable, and comes with basic tools like scaling and size configuration.
 
-Featurs:
+## Features:
 - Interactive preview of your XAML code (powered by `XamlReader`)
 - Integration with VS2022 17.9+
 - Reload via opening/saving/switching
 - Supports your own user control and custom control
 - Supports controls in dependency (i.e. libraries)
 
-Limitation:
+## Limitation:
 - Require building the project once before use
 - Packaged apps require launching once after build, before use
 - Require a few lines of setup
