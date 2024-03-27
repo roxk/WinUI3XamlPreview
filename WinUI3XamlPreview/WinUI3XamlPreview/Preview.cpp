@@ -37,6 +37,12 @@ namespace winrt::WinUI3XamlPreview::implementation
         {
             co_return false;
         }
+        const auto host = uri.Host();
+        if (host == L"close")
+        {
+            mux::Application::Current().Exit();
+            co_return true;
+        }
         if (co_await Redirect(activatedArgs))
         {
             mux::Application::Current().Exit();
