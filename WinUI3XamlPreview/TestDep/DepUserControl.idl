@@ -1,0 +1,9 @@
+namespace TestDep
+{
+    [default_interface]
+    runtimeclass DepUserControl : Microsoft.UI.Xaml.Controls.UserControl
+    {
+        DepUserControl();
+        Int32 MyProperty;
+    }
+}

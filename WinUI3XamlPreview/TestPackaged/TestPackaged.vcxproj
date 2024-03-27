@@ -178,6 +178,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TestDep\TestDep.vcxproj">
+      <Project>{a4c036f2-eab5-4447-ba06-64d6c3e1aff1}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\WinUI3XamlPreview\WinUI3XamlPreview.vcxproj">
       <Project>{9daf64ae-e801-49f0-9820-ba8f8d037093}</Project>
     </ProjectReference>
