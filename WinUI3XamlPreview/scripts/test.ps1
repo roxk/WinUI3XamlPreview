@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 . "$PSScriptRoot\get-msbuild"
 nuget restore $PSScriptRoot\..\TestDep\TestDep.vcxproj -PackagesDirectory $PSScriptRoot\..\packages
 nuget restore $PSScriptRoot\..\WinUI3XamlPreview\WinUI3XamlPreview.vcxproj -PackagesDirectory $PSScriptRoot\..\packages

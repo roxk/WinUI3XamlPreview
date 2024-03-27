@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 $formatCheck = "$PSScriptRoot\format.ps1"
 $test = "$PSScriptRoot\test.ps1"
 

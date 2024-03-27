@@ -13,6 +13,7 @@ on:
 jobs:
   test:
     runs-on: windows-2022
+    if: startsWith(github.ref, 'refs/tags/vs2022-v') == false
     steps:
       - uses: actions/checkout@v3
       - working-directory: WinUI3XamlPreview
@@ -32,15 +33,14 @@ jobs:
           ./scripts/publish-nuget -version $env:VERSION
   build-extension:
     runs-on: windows-2022
-    needs: ["test"]
     if: startsWith(github.ref, 'refs/tags/vs2022-v')
     steps:
       - uses: actions/checkout@v3
       - uses: microsoft/setup-msbuild@v1.1
-      - working-directory: extensions/WinUI3XamlPrevieVS2022
+      - working-directory: "extensions\\WinUI3XamlPreviewVS2022"
         run: ./scripts/build-extension -config Release
       - uses: cezarypiatek/VsixPublisherAction@0.2
         with:
-          extension-file: './extensions/WinUI3XamlPrevieVS2022/WinUI3XamlPrevieVS2022/bin/Release/net480/WinUI3XamlPrevieVS2022.vsix'
-          publish-manifest-file: './extension/WinUI3XamlPrevieVS2022/vs-publish.json'
+          extension-file: './extensions/WinUI3XamlPreviewVS2022/WinUI3XamlPreviewVS2022/bin/Release/net480/WinUI3XamlPreviewVS2022.vsix'
+          publish-manifest-file: './extensions/WinUI3XamlPreviewVS2022/vs-publish.json'
           personal-access-code: ${{ secrets.VS_MARKETPLACE_API_KEY }}

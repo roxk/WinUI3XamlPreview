@@ -4,7 +4,7 @@
     <Identity Id="WinUI3XamlPreviewVS2022.419c3506-e387-4816-bc98-50b888b96498" Version="0.1.0" Language="en-US" Publisher="Roxk Yiu" />
     <DisplayName>WinUI3XamlPreview VS2022 Extension</DisplayName>
     <Description>This extension allows developers to see a live preview while writing XAML in WinUI 3</Description>
-	<Tags>WinUI3, WinUI 3, WinUI, XAML, Preview, Live Preview</Tags>
+	<Tags>WinUI3, WinUI 3, WinUI, XAML, Preview</Tags>
     <Preview>true</Preview>
   </Metadata>
   <Installation ExtensionType="VSSDK+VisualStudio.Extensibility">

@@ -1,6 +1,7 @@
 param(
 	[switch]$check
 )
+$ErrorActionPreference = "Stop"
 
 $setup = "$PSScriptRoot\setup.ps1"
 &$setup

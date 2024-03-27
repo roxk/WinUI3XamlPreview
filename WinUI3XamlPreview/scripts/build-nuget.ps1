@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory=$true)]
     [String]$version
 )
+$ErrorActionPreference = "Stop"
 $template = Get-Content $PSScriptRoot\..\Nuget\WinUI3XamlPreview.nuspec.template
 $nuspec = $template.Replace("VERSION", $version)
 Set-Content -path $PSScriptRoot\..\Nuget\.nuspec -value $nuspec
