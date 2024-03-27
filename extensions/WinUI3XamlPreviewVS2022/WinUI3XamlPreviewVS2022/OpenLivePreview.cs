@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.Extensibility.Shell;
 using Microsoft.VisualStudio.ProjectSystem.Query;
 using Microsoft.VisualStudio.RpcContracts.Documents;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -29,13 +30,20 @@ namespace WinUI3XamlPreviewVS2022
         }
     }
 
+    internal struct PreviewInfo
+    {
+        public string AppPath;
+        public string FilePath;
+    }
+
     [VisualStudioContribution]
     internal class ToggleLivePreview : Command, IToggleCommand, IDocumentEventsListener
     {
         private readonly TraceSource _logger;
         private OutputWindow? _outWindow;
         private IDisposable? _documentSub;
-        private string? _lastOpenedAppPath;
+        private PreviewInfo? _lastOpenedInfo;
+        private CancellationTokenSource? _lastOpenedAppWaitSource;
 
         public ToggleLivePreview(TraceSource traceSource)
         {
@@ -78,9 +86,8 @@ namespace WinUI3XamlPreviewVS2022
             {
                 _documentSub = await Extensibility.Documents().SubscribeAsync(this, null, cancellationToken);
                 await TryOpenActiveDocumentAsync(cancellationToken);
+                OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsChecked)));
             }
-
-            OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsChecked)));
         }
         private async Task TryOpenActiveDocumentAsync(CancellationToken cancellationToken)
         {
@@ -92,16 +99,22 @@ namespace WinUI3XamlPreviewVS2022
             await OpenAsync(doc.FilePath ?? "", cancellationToken);
         }
 
-        private void TurnOffPreview()
+        private void TurnOffPreview(bool closeLastOpendApp = true)
         {
             _documentSub?.Dispose();
             _documentSub = null;
-            TryCloseLastOpenedApp();
+            if (closeLastOpendApp)
+            {
+                TryCloseLastOpenedApp();
+            }
+            _lastOpenedInfo = null;
+            _lastOpenedAppWaitSource?.Cancel();
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsChecked)));
         }
 
         private void TryCloseLastOpenedApp()
         {
-            if (_lastOpenedAppPath is not string previewAppPath)
+            if (_lastOpenedInfo?.AppPath is not string previewAppPath)
             {
                 return;
             }
@@ -147,12 +160,33 @@ namespace WinUI3XamlPreviewVS2022
                     }
                 }
                 var urlencodedPath = WebUtility.UrlEncode(path);
-                if (_lastOpenedAppPath != null && _lastOpenedAppPath != previewAppPath)
+                var isDifferentApp = _lastOpenedInfo?.AppPath != previewAppPath;
+                if (isDifferentApp)
                 {
                     TryCloseLastOpenedApp();
                 }
-                Process.Start(previewAppPath, $"----ms-protocol:winui3xp://show?filePath=\"{urlencodedPath}\"");
-                _lastOpenedAppPath = previewAppPath;
+                if (_documentSub == null)
+                {
+                    return;
+                }
+                var process = Process.Start(previewAppPath, $"----ms-protocol:winui3xp://show?filePath=\"{urlencodedPath}\"");
+                if (process == null)
+                {
+                    throw new InvalidOperationException("Could not start the app process");
+                }
+                var shouldWaitForExit = isDifferentApp;
+                _lastOpenedInfo = new PreviewInfo
+                {
+                    AppPath = previewAppPath,
+                    FilePath = path,
+                };
+                // For the same app, the process would exit immediately due to redirect so we don't wait for them
+                if (shouldWaitForExit)
+                {
+                    _lastOpenedAppWaitSource?.Cancel();
+                    _lastOpenedAppWaitSource = new CancellationTokenSource();
+                    _ = TryWaitForAppProcessAsync(process);
+                }
             }
             catch (Exception ex)
             {
@@ -160,15 +194,44 @@ namespace WinUI3XamlPreviewVS2022
             }
         }
 
-        private async Task TryOpenAsync(Uri uri, CancellationToken token)
+        private async Task TryWaitForAppProcessAsync(Process process)
+        {
+            var source = _lastOpenedAppWaitSource;
+            var lastOpendAppPath = _lastOpenedInfo?.AppPath;
+            if (source == null)
+            {
+                throw new InvalidOperationException("Waiting process exist without a token source");
+            }
+            try
+            {
+                await process.WaitForExitAsync(source.Token);
+                if (_lastOpenedInfo?.AppPath == lastOpendAppPath && _documentSub != null)
+                {
+                    TurnOffPreview(false);
+                }
+            }
+            catch (TaskCanceledException ex)
+            {
+                // No-op
+            }
+            catch (Exception ex)
+            {
+                _outWindow?.Writer.WriteLineAsync(ex.ToString());
+            }
+        }
+
+        private async Task TryOpenAsync(Uri uri, bool skipSameFile, CancellationToken token)
         {
             try
             {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 var doc = await VS.Documents.GetActiveDocumentViewAsync();
                 // Fun: Doc and overall project use \, but for some reason moniker use /
                 var openPath = uri.AbsolutePath.Replace("/", "\\");
                 if (doc?.FilePath != openPath)
+                {
+                    return;
+                }
+                if (_lastOpenedInfo?.FilePath == openPath && skipSameFile)
                 {
                     return;
                 }
@@ -205,8 +268,13 @@ namespace WinUI3XamlPreviewVS2022
             // Workaround: Return immediately and start work in worker thread
             _ = Task.Run(async () =>
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                if (_documentSub == null)
+                {
+                    return;
+                }
                 var source = new CancellationTokenSource();
-                await TryOpenAsync(e.Moniker, source.Token);
+                await TryOpenAsync(e.Moniker, false, source.Token);
             });
             return Task.CompletedTask;
         }
@@ -218,11 +286,12 @@ namespace WinUI3XamlPreviewVS2022
 
         public async Task ShownAsync(DocumentEventArgs e, CancellationToken token)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             if (_documentSub == null)
             {
                 return;
             }
-            await TryOpenAsync(e.Moniker, token);
+            await TryOpenAsync(e.Moniker, true, token);
         }
 
         public Task HiddenAsync(DocumentEventArgs e, CancellationToken token)
