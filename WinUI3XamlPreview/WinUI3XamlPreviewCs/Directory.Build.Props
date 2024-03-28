@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
 	<PropertyGroup>
-		<BuildOutDir>$([MSBuild]::NormalizeDirectory('$(SolutionDir)', '$(Platform)', '$(Configuration)'))</BuildOutDir>
+		<!-- When building from CLI, even if we specify solution solution dir would be empty -->
+		<!-- And ProjectDir somehow points to solution dir instead so we use that -->
+		<!-- But, if we only use project dir, for some reason building in VS project dir would be empty -->
+		<!-- ¯\_(ツ)_/¯ -->
+		<BuildOutDir>$(SolutionDir)$(Platform)\$(Configuration)</BuildOutDir>
 		<OutDir>$([MSBuild]::NormalizeDirectory('$(BuildOutDir)', '$(MSBuildProjectName)', 'bin'))</OutDir>
 		<IntDir>$([MSBuild]::NormalizeDirectory('$(BuildOutDir)', '$(MSBuildProjectName)', 'obj'))</IntDir>
 	</PropertyGroup>

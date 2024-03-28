@@ -13,14 +13,21 @@ on:
 jobs:
   test:
     runs-on: windows-2022
-    if: startsWith(github.ref, 'refs/tags/vs2022-v') == false
+    if: ${{ !startsWith(github.ref, 'refs/tags/vs2022-v') && !startsWith(github.ref, 'refs/tags/v') }}
     steps:
       - uses: actions/checkout@v3
       - working-directory: WinUI3XamlPreview
         run: ./scripts/ci
+  no-build-test:
+    runs-on: windows-2022
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v3
+      - working-directory: WinUI3XamlPreview
+        run: ./scripts/format -check
   build:
     runs-on: windows-2022
-    needs: ["test"]
+    needs: ["no-build-test"]
     if: startsWith(github.ref, 'refs/tags/v')
     env:
       VERSION: 0.1.0
@@ -29,7 +36,7 @@ jobs:
       - uses: actions/checkout@v3
       - working-directory: WinUI3XamlPreview
         run: |
-          ./scripts/build -version $env:VERSION
+          ./scripts/build-nuget -version $env:VERSION
           ./scripts/publish-nuget -version $env:VERSION
   build-extension:
     runs-on: windows-2022
