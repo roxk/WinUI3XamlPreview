@@ -13,10 +13,6 @@ using namespace winrt;
 namespace mut = Microsoft::UI::Text;
 namespace wdxd = Windows::Data::Xml::Dom;
 
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
 {
     auto item = comboBox.SelectedItem();
@@ -285,6 +281,8 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::resolutionComboBox_Sele
     UpdateResolutionByComboBox();
 }
 
+// Situation: Setting ComboBox's Text _after_ setting selected item inside selection changed event doesn't update Text
+// correctly, likely because it is internally tring to set text as well. Workaround: Set text after the event.
 template<typename T, typename D>
 void winrt::WinUI3XamlPreview::implementation::MainPage::CombobBoxSelectedItem(muxc::ComboBox const& comboBox, T&& value, D display)
 {

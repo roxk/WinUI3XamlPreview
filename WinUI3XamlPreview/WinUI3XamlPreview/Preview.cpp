@@ -96,7 +96,7 @@ namespace winrt::WinUI3XamlPreview::implementation
             }
             catch (...)
             {
-                // todo: log
+                // No file path specified by user. Not an error so no need to log/react.
                 co_return;
             }
             break;
