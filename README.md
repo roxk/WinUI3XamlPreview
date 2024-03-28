@@ -17,9 +17,8 @@ WinUI3 Xaml Preview allows you to see a a live preview of your UI while authorin
 
 ## Limitation:
 - Require building the project once before use
-- Packaged apps require launching once after build, before use
+- Packaged apps require being deployed before use
 - Require a few lines of setup
-- Render errors are currently not shown. If you are not seeing your code updated, there is probably an error in your XAML. Check the code or build the project again
 
 The author does not believe in Designer so this project would stay only as a live preview. If you want a designer, fork this project and create your own.
 
