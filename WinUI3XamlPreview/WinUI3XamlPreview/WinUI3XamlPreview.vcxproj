@@ -117,12 +117,19 @@
       <DependentUpon>Preview.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="Toast.xaml.h">
+      <DependentUpon>Toast.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml" />
+    <Page Include="Toast.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
@@ -140,6 +147,10 @@
       <DependentUpon>Preview.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="Toast.xaml.cpp">
+      <DependentUpon>Toast.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainPage.idl">
@@ -152,6 +163,10 @@
     </Midl>
     <Midl Include="Preview.idl">
       <SubType>Designer</SubType>
+    </Midl>
+    <Midl Include="Toast.idl">
+      <DependentUpon>Toast.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </Midl>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +195,10 @@
     <None Include="Nuget\Preview.vcxproj" />
     <None Include="packages.config" />
     <None Include="WinUI3XamlPreview.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw" />
+    <PRIResource Include="Strings\zh-HK\Resources.resw" />
   </ItemGroup>
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution

@@ -8,6 +8,7 @@
 #include <winrt/Microsoft.UI.Text.h>
 #include <winrt/Windows.Data.Xml.Dom.h>
 #include "Preview.h"
+#include <regex>
 
 using namespace winrt;
 namespace mut = Microsoft::UI::Text;
@@ -112,14 +113,16 @@ namespace winrt::WinUI3XamlPreview::implementation
         }
         catch (...)
         {
-            // TODO: Show error
+            mwamr::ResourceLoader res(mwamr::ResourceLoader::GetDefaultResourceFilePath(), L"WinUI3XamlPreview/Resources");
+            toast().ShowError(res.GetString(L"XamlLoadErrorTitle"),
+                res.GetString(L"XamlLoadErrorMessage"));
         }
     }
     winrt::fire_and_forget MainPage::OpenFileAndRead(winrt::hstring e)
     {
+        auto weak = get_weak();
         try
         {
-            auto weak = get_weak();
             auto file = co_await ws::StorageFile::GetFileFromPathAsync(e);
             auto content = co_await ws::FileIO::ReadTextAsync(file);
             auto strong = weak.get();
@@ -131,7 +134,16 @@ namespace winrt::WinUI3XamlPreview::implementation
         }
         catch (...)
         {
-            // TODO: Show error
+            auto strong = weak.get();
+            if (strong == nullptr)
+            {
+                co_return;
+            }
+            mwamr::ResourceLoader res(mwamr::ResourceLoader::GetDefaultResourceFilePath(), L"WinUI3XamlPreview/Resources");
+            auto messageFormat = res.GetString(L"FileNotFoundMessage");
+            auto message = std::regex_replace(messageFormat.c_str(), std::wregex(L"\\{\\}"), e.c_str());
+            strong->toast().ShowError(res.GetString(L"FileNotFoundTitle"),
+                message);
         }
     }
     winrt::hstring MainPage::ScaleDisplay(double scalePercentage)

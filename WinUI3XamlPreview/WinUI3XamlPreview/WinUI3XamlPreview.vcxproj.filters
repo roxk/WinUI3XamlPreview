@@ -3,6 +3,7 @@
   <ItemGroup>
     <Page Include="MainWindow.xaml" />
     <Page Include="MainPage.xaml" />
+    <Page Include="Toast.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -53,5 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw" />
+    <PRIResource Include="Strings\zh-HK\Resources.resw" />
   </ItemGroup>
 </Project>

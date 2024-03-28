@@ -13,16 +13,22 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        <ScrollView
-            x:Name="viewportScrollView"
-            Background="Gray"
-            CornerRadius="0">
-            <Border
-                x:Name="elementWrapper"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                BorderThickness="1" />
-        </ScrollView>
+        <Grid>
+            <ScrollView
+                x:Name="viewportScrollView"
+                Background="Gray"
+                CornerRadius="0">
+                <Border
+                    x:Name="elementWrapper"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                    BorderThickness="1" />
+            </ScrollView>
+            <local:Toast
+                x:Name="toast"
+                Margin="0,0,0,8"
+                VerticalAlignment="Bottom" />
+        </Grid>
         <ScrollView
             Grid.Row="1"
             BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
