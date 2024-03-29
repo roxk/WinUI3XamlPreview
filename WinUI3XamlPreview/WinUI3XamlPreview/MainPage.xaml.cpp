@@ -3,7 +3,6 @@
 #if __has_include("MainPage.g.cpp")
 #include "MainPage.g.cpp"
 #endif
-#include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Microsoft.UI.Text.h>
 #include <winrt/Windows.Data.Xml.Dom.h>
@@ -11,7 +10,7 @@
 #include <regex>
 
 using namespace winrt;
-namespace mut = Microsoft::UI::Text;
+namespace mut = winrt::Microsoft::UI::Text;
 namespace wdxd = Windows::Data::Xml::Dom;
 
 double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
@@ -85,11 +84,11 @@ namespace winrt::WinUI3XamlPreview::implementation
     }
     MainPage::MainPage()
     {
-        _filePathChangedToken = Preview::Instance()->FilePathChanged({ get_weak(), &MainPage::OnFilePathChanged });
+        _filePathChangedToken = Preview::InstanceInternal()->FilePathChanged({get_weak(), &MainPage::OnFilePathChanged});
     }
     MainPage::~MainPage()
     {
-        Preview::Instance()->FilePathChanged(_filePathChangedToken);
+        Preview::InstanceInternal()->FilePathChanged(_filePathChangedToken);
     }
     void MainPage::OnFilePathChanged(IInspectable const& sender, winrt::hstring const& e)
     {

@@ -4,6 +4,7 @@
 #include "Preview.g.cpp"
 #endif
 #include "MainWindow.xaml.h"
+#include <filesystem>
 
 constexpr auto instanceMainKey = L"WinUI3XamlPreview.Main";
 
@@ -15,7 +16,11 @@ namespace winrt::WinUI3XamlPreview::implementation
     }
     wf::IAsyncOperation<bool> Preview::IsXamlPreviewLaunched()
     {
-        return Instance()->IsXamlPreviewLaunchedInternal();
+        return InstanceInternal()->IsXamlPreviewLaunchedInternal();
+    }
+    winrt::com_ptr<Preview> Preview::InstanceInternal()
+    {
+        return Instance().as<Preview>();
     }
     wf::IAsyncOperation<bool> Preview::IsXamlPreviewLaunchedInternal()
     {
@@ -48,6 +53,53 @@ namespace winrt::WinUI3XamlPreview::implementation
             mux::Application::Current().Exit();
             co_return true;
         }
+        else if (host == L"loadLibrary")
+        {
+            try
+            {
+                auto queries = uri.QueryParsed();
+                std::vector<wil::unique_hmodule> modules;
+                for (auto&& query : queries)
+                {
+                    if (query.Name() == L"dllPath")
+                    {
+                        const auto dllPath = query.Value().c_str();
+                        auto modu = LoadLibrary(dllPath);
+                        if (modu == nullptr)
+                        {
+                            // TODO: Error
+                            co_return true;
+                        }
+                        wil::unique_hmodule mod{ modu };
+                        if (!mod.is_valid())
+                        {
+                            // TODO: Error
+                            co_return true;
+                        }
+                        auto path = std::filesystem::path(dllPath);
+                        auto fileName = path.stem().wstring();
+                        auto factory = winrt::get_activation_factory(winrt::hstring(fileName) + L".XamlMetaDataProvider");
+                        auto themePath = path.remove_filename().append(fileName).append("Themes\\Generic.xaml").wstring();
+                        _xamlMetaDataProviderLoaded(*this, factory.ActivateInstance<muxm::IXamlMetadataProvider>());
+                        if (std::filesystem::exists(themePath))
+                        {
+                            _xamlThemeGenericFilePathAdded(*this, themePath);
+                        }
+                        modules.emplace_back(std::move(mod));
+                    }
+                }
+                for (auto&& mod : modules)
+                {
+                    _modules.emplace_back(std::move(mod));
+                }
+            }
+            catch (...)
+            {
+                // TODO: Error
+                co_return true;
+            }
+            // Continue execution as we want to handle showing as well.
+        }
         const auto appInstance = mwal::AppInstance::FindOrRegisterForKey(instanceMainKey);
         if (!appInstance.IsCurrent())
         {
@@ -59,9 +111,9 @@ namespace winrt::WinUI3XamlPreview::implementation
         OnActivated(*this, activatedArgs);
         co_return true;
     }
-    winrt::com_ptr<Preview> Preview::Instance()
+    WinUI3XamlPreview::Preview Preview::Instance()
     {
-        static auto preview = winrt::make_self<Preview>();
+        static auto preview{ winrt::make<Preview>() };
         return preview;
     }
     winrt::fire_and_forget Preview::OnActivated(IInspectable sender, mwal::AppActivationArguments e)

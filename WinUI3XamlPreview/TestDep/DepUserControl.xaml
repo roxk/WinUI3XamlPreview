@@ -13,5 +13,6 @@
         VerticalAlignment="Center"
         Orientation="Horizontal">
         <Button x:Name="myButton" Click="myButton_Click">Hello from dep user control</Button>
+        <local:DepCustomControl />
     </StackPanel>
 </UserControl>

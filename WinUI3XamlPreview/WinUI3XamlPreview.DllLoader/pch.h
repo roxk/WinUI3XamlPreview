@@ -1,5 +1,4 @@
 #pragma once
-#define NOMINMAX
 #include <windows.h>
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
@@ -14,7 +13,6 @@
 #include <winrt/Windows.ApplicationModel.Activation.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Microsoft.UI.Composition.h>
-#include <winrt/Microsoft.Windows.ApplicationModel.Resources.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
@@ -25,22 +23,13 @@
 #include <winrt/Microsoft.UI.Xaml.Navigation.h>
 #include <winrt/Microsoft.UI.Xaml.Shapes.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
-#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
-#include <winrt/Microsoft.Windows.AppLifecycle.h>
 #include <wil/cppwinrt_helpers.h>
-#include <idlgen.h>
+#include <winrt/WinUI3XamlPreview.h>
 
 namespace winrt
 {
-    namespace waa = Windows::ApplicationModel::Activation;
-    namespace wf = Windows::Foundation;
-    namespace wfc = Windows::Foundation::Collections;
-    namespace ws = Windows::Storage;
-    namespace mux = Microsoft::UI::Xaml;
-    namespace muxc = Microsoft::UI::Xaml::Controls;
-    namespace muxm = Microsoft::UI::Xaml::Markup;
-    namespace muxmi = Microsoft::UI::Xaml::Media::Imaging;
-    namespace mwal = Microsoft::Windows::AppLifecycle;
-    namespace mwamr = Microsoft::Windows::ApplicationModel::Resources;
-    namespace mud = Microsoft::UI::Dispatching;
+	namespace ws = Windows::Storage;
+	namespace wf = Windows::Foundation;
+	namespace mux = Microsoft::UI::Xaml;
+	namespace muxm = Microsoft::UI::Xaml::Markup;
 }
