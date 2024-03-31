@@ -55,6 +55,9 @@ namespace winrt::WinUI3XamlPreview::implementation
         }
         else if (host == L"loadLibrary")
         {
+            // Note: All errors are ignored as there is nothing meanful to show users.
+            // However, since we handled the protocol, we still tell the caller that "yes, the preview
+            // had been launched".
             try
             {
                 auto queries = uri.QueryParsed();
@@ -67,13 +70,11 @@ namespace winrt::WinUI3XamlPreview::implementation
                         auto modu = LoadLibrary(dllPath);
                         if (modu == nullptr)
                         {
-                            // TODO: Error
                             co_return true;
                         }
                         wil::unique_hmodule mod{ modu };
                         if (!mod.is_valid())
                         {
-                            // TODO: Error
                             co_return true;
                         }
                         auto path = std::filesystem::path(dllPath);
@@ -95,7 +96,6 @@ namespace winrt::WinUI3XamlPreview::implementation
             }
             catch (...)
             {
-                // TODO: Error
                 co_return true;
             }
             // Continue execution as we want to handle showing as well.

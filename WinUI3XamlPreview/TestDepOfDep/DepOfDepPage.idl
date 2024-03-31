@@ -1,0 +1,8 @@
+namespace TestDepOfDep
+{
+    [default_interface]
+    runtimeclass DepOfDepPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        DepOfDepPage();
+    }
+}
