@@ -43,5 +43,8 @@
 
 		<!-- .NET projection -->
 		<file target="lib\net6.0-windows10.0.22621.0\WinUI3XamlPreviewCs.dll"  src="..\AnyCPU\Release\WinUI3XamlPreviewCs\bin\WinUI3XamlPreviewCs.dll" />
+
+		<!-- DLL loader app -->
+		<file target="tools\WinUI3XamlPreview.DllLoader.zip" src="WinUI3XamlPreview.DllLoader.zip" />
 	</files>
 </package>

@@ -170,7 +170,7 @@
     <Import Project="..\packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.755\build\Microsoft.Windows.SDK.BuildTools.targets" Condition="Exists('..\packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.755\build\Microsoft.Windows.SDK.BuildTools.targets')" />
     <Import Project="..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets" Condition="Exists('..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets')" />
     <Import Project="..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
-    <Import Project="..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets" Condition="Exists('..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets')" />
+    <Import Project="..\packages\WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.targets" Condition="Exists('..\packages\WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -183,6 +183,9 @@
     <Error Condition="!Exists('..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
-    <Error Condition="!Exists('..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets'))" />
+    <Error Condition="!Exists('..\packages\WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.targets'))" />
+  </Target>
+  <Target Name="EnsureLocalPackage" BeforeTargets="EnsureNuGetPackageBuildImports">
+    <Exec Command="powershell -c &quot;if (test-path $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg) { exit 0 }; $(ProjectDir)..\scripts\build-nuget -version 0.0.0; move $(ProjectDir)..\Nuget\WinUI3XamlPreview.0.0.0.nupkg -destination $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg; nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages&quot;" />
   </Target>
 </Project>
