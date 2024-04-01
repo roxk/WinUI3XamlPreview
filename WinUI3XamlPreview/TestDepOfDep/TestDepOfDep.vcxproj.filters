@@ -12,12 +12,10 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="DepCustomControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Midl Include="Class.idl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestDepOfDep.def" />
@@ -28,5 +26,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="DepOfDepPage.xaml" />
+    <Page Include="Themes\Generic.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

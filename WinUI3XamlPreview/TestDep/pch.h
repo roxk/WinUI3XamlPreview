@@ -25,3 +25,4 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <wil/cppwinrt_helpers.h>
 #include "DepCustomControl.h"
+#include <winrt/WinUI3XamlPreview.h>

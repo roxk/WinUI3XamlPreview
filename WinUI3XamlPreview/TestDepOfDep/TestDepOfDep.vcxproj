@@ -93,6 +93,10 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TestNonWinRTDep.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
@@ -104,6 +108,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DepCustomControl.h">
+      <DependentUpon>DepCustomControl.cpp</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="DepOfDepPage.xaml.h">
       <DependentUpon>DepOfDepPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -111,6 +119,9 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DepCustomControl.cpp">
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="DepOfDepPage.xaml.cpp">
       <DependentUpon>DepOfDepPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -133,8 +144,13 @@
     <Page Include="DepOfDepPage.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Themes\Generic.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <Midl Include="DepCustomControl.idl">
+      <DependentUpon>DepCustomControl.cpp</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="DepOfDepPage.idl">
       <DependentUpon>DepOfDepPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -144,6 +160,9 @@
     <ProjectReference Include="..\TestDep\TestDep.vcxproj">
       <Project>{a4c036f2-eab5-4447-ba06-64d6c3e1aff1}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\TestNonWinRTDep\TestNonWinRTDep.vcxproj">
+      <Project>{139f0229-1c0e-432e-9928-d8589e7fa87c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
@@ -151,6 +170,7 @@
     <Import Project="..\packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.755\build\Microsoft.Windows.SDK.BuildTools.targets" Condition="Exists('..\packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.755\build\Microsoft.Windows.SDK.BuildTools.targets')" />
     <Import Project="..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets" Condition="Exists('..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets')" />
     <Import Project="..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets" Condition="Exists('..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -163,5 +183,6 @@
     <Error Condition="!Exists('..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.WindowsAppSDK.1.4.230913002\build\native\Microsoft.WindowsAppSDK.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinUI3XamlPreview.WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.WinUI3XamlPreview.targets'))" />
   </Target>
 </Project>

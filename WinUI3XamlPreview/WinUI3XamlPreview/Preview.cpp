@@ -57,45 +57,62 @@ namespace winrt::WinUI3XamlPreview::implementation
         {
             // Note: All errors are ignored as there is nothing meanful to show users.
             // However, since we handled the protocol, we still tell the caller that "yes, the preview
-            // had been launched".
-            try
-            {
-                auto queries = uri.QueryParsed();
-                std::vector<wil::unique_hmodule> modules;
-                for (auto&& query : queries)
+            // had been launched" (and we call exist instead).
+            // <returns>true if there are erros</returns>
+            auto loadLibrary = [&]()
                 {
-                    if (query.Name() == L"dllPath")
+                    try
                     {
-                        const auto dllPath = query.Value().c_str();
-                        auto modu = LoadLibrary(dllPath);
-                        if (modu == nullptr)
+                        auto queries = uri.QueryParsed();
+                        std::vector<wil::unique_hmodule> modules;
+                        for (auto&& query : queries)
                         {
-                            co_return true;
+                            if (query.Name() == L"dllPath")
+                            {
+                                const auto dllPath = query.Value().c_str();
+                                auto modu = LoadLibrary(dllPath);
+                                if (modu == nullptr)
+                                {
+                                    mux::Application::Current().Exit();
+                                    return true;
+                                }
+                                wil::unique_hmodule mod{ modu };
+                                if (!mod.is_valid())
+                                {
+                                    mux::Application::Current().Exit();
+                                    return true;
+                                }
+                                auto path = std::filesystem::path(dllPath);
+                                auto fileName = path.stem().wstring();
+                                auto& dllDir = path.remove_filename();
+                                auto winmdPath = std::filesystem::path(dllDir).append(fileName + L".winmd");
+                                if (std::filesystem::exists(winmdPath))
+                                {
+                                    auto factory = winrt::get_activation_factory(winrt::hstring(fileName) + L".XamlMetaDataProvider");
+                                    _xamlMetaDataProviderLoaded(*this, factory.ActivateInstance<muxm::IXamlMetadataProvider>());
+                                }
+                                auto themePath = std::filesystem::path(dllDir).append(fileName).append("Themes\\Generic.xaml").wstring();
+                                if (std::filesystem::exists(themePath))
+                                {
+                                    _xamlThemeGenericFilePathAdded(*this, themePath);
+                                }
+                                modules.emplace_back(std::move(mod));
+                            }
                         }
-                        wil::unique_hmodule mod{ modu };
-                        if (!mod.is_valid())
+                        for (auto&& mod : modules)
                         {
-                            co_return true;
+                            _modules.emplace_back(std::move(mod));
                         }
-                        auto path = std::filesystem::path(dllPath);
-                        auto fileName = path.stem().wstring();
-                        auto factory = winrt::get_activation_factory(winrt::hstring(fileName) + L".XamlMetaDataProvider");
-                        auto themePath = path.remove_filename().append(fileName).append("Themes\\Generic.xaml").wstring();
-                        _xamlMetaDataProviderLoaded(*this, factory.ActivateInstance<muxm::IXamlMetadataProvider>());
-                        if (std::filesystem::exists(themePath))
-                        {
-                            _xamlThemeGenericFilePathAdded(*this, themePath);
-                        }
-                        modules.emplace_back(std::move(mod));
+                        return false;
                     }
-                }
-                for (auto&& mod : modules)
-                {
-                    _modules.emplace_back(std::move(mod));
-                }
-            }
-            catch (...)
+                    catch (...)
+                    {
+                        return true;
+                    }
+                };
+            if (loadLibrary())
             {
+                mux::Application::Current().Exit();
                 co_return true;
             }
             // Continue execution as we want to handle showing as well.

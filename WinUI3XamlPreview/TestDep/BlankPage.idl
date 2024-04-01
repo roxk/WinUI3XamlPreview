@@ -1,0 +1,8 @@
+namespace TestDep
+{
+    [default_interface]
+    runtimeclass BlankPage : Microsoft.UI.Xaml.Controls.Page
+    {
+        BlankPage();
+    }
+}

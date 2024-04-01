@@ -12,4 +12,7 @@ using namespace Microsoft::UI::Xaml;
 
 namespace winrt::TestDepOfDep::implementation
 {
+	DepOfDepPage::DepOfDepPage()
+	{
+	}
 }

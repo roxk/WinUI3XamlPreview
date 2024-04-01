@@ -30,5 +30,6 @@
   <ItemGroup>
     <Page Include="DepUserControl.xaml" />
     <Page Include="Themes\Generic.xaml" />
+    <Page Include="BlankPage.xaml" />
   </ItemGroup>
 </Project>
