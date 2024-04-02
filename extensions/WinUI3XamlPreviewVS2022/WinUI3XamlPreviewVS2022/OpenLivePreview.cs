@@ -260,10 +260,14 @@ namespace WinUI3XamlPreviewVS2022
         private async Task<(string appPath, string host, string quries)> OpenDllProjectAsync(Project docProject)
         {
             var source = new CancellationTokenSource();
-            var dllPaths = await GetDllPathsAsync(docProject, source.Token);
             var projectName = await docProject.GetAttributeAsync("ProjectName");
             var outDir = await docProject.GetAttributeAsync("OutDir");
             var appPath = await GetUnpackagedAppNameAsync(docProject, $"{outDir}..\\{projectName}_Preview", "WinUI3XamlPreview_DllLoader");
+            if (_lastOpenedInfo?.AppPath == appPath)
+            {
+                return (appPath, "show", "");
+            }
+            var dllPaths = await GetDllPathsAsync(docProject, source.Token);
             return (appPath, "loadLibrary", string.Join("&", dllPaths.Select(x => $"dllPath={WebUtility.UrlEncode(x)}")));
         }
 
