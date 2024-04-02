@@ -4,10 +4,12 @@ using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Commands;
 using Microsoft.VisualStudio.Extensibility.Documents;
 using Microsoft.VisualStudio.Extensibility.Shell;
+using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.ProjectSystem.Query;
 using Microsoft.VisualStudio.RpcContracts.Documents;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.VCProjectEngine;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -15,6 +17,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Xml;
+using VSLangProj;
 
 namespace WinUI3XamlPreviewVS2022
 {
@@ -132,32 +135,24 @@ namespace WinUI3XamlPreviewVS2022
                 {
                     return;
                 }
-                var targetName = await docProject.GetAttributeAsync("TargetName");
-                var isPackaged = (await docProject.GetAttributeAsync("AppxPackage")) == "true";
-                string previewAppPath;
-                if (isPackaged)
+                var isExeProjectCpp = (await docProject.GetAttributeAsync("ConfigurationType")) == "Application";
+                var isExeProjectCs = (await docProject.GetAttributeAsync("OutputType")) == "WinExe";
+                var isExeProject = isExeProjectCpp || isExeProjectCs;
+                string appPath;
+                string host;
+                string queries;
+                if (isExeProject)
                 {
-                    previewAppPath = $"{targetName}-WinUI3XP";
+                    (appPath, host, queries) = await OpenExeProjectAsync(docProject);
                 }
                 else
                 {
-                    var projectPath = docProject.FullPath;
-                    var projectName = docProject.Name;
-                    var outDir = await docProject.GetAttributeAsync("OutDir");
-                    previewAppPath = Path.Combine(outDir ?? "", $"{targetName}.exe");
-                    // Cs project outdir is relative...Use uri to detect. Relative path somehow throw in ctor
-                    try
-                    {
-                        var uri = new Uri(previewAppPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        var projectDir = await docProject.GetAttributeAsync("ProjectDir");
-                        previewAppPath = Path.Combine(projectDir, previewAppPath);
-                    }
+                    // Assume it's DLL project. WinRT doesn't support static library anyways.
+                    (appPath, host, queries) = await OpenDllProjectAsync(docProject);
                 }
                 var urlencodedPath = WebUtility.UrlEncode(path);
-                var isDifferentApp = _lastOpenedInfo?.AppPath != previewAppPath;
+                var urlencodedQueries = WebUtility.UrlEncode(queries);
+                var isDifferentApp = _lastOpenedInfo?.AppPath != appPath;
                 if (isDifferentApp)
                 {
                     TryCloseLastOpenedApp();
@@ -166,7 +161,8 @@ namespace WinUI3XamlPreviewVS2022
                 {
                     return;
                 }
-                var process = Process.Start(previewAppPath, $"----ms-protocol:winui3xp://show?filePath=\"{urlencodedPath}\"");
+                var arguments = $"----ms-protocol:winui3xp://{host}?filePath={urlencodedPath}&{queries}";
+                var process = Process.Start(appPath, arguments);
                 if (process == null)
                 {
                     throw new InvalidOperationException("Could not start the app process");
@@ -174,7 +170,7 @@ namespace WinUI3XamlPreviewVS2022
                 var shouldWaitForExit = isDifferentApp;
                 _lastOpenedInfo = new PreviewInfo
                 {
-                    AppPath = previewAppPath,
+                    AppPath = appPath,
                     FilePath = path,
                 };
                 // For the same app, the process would exit immediately due to redirect so we don't wait for them
@@ -189,6 +185,86 @@ namespace WinUI3XamlPreviewVS2022
             {
                 _outWindow?.Writer.WriteLineAsync(ex.ToString());
             }
+        }
+
+        private async Task<string> GetUnpackagedAppNameAsync(Project docProject, string outDir, string exeName)
+        {
+            string previewAppPath = Path.Combine(outDir ?? "", $"{exeName}.exe");
+            // Cs project outdir is relative...Use uri to detect. Relative path somehow throw in ctor
+            try
+            {
+                var uri = new Uri(previewAppPath);
+            }
+            catch (Exception)
+            {
+                var projectDir = await docProject.GetAttributeAsync("ProjectDir");
+                previewAppPath = Path.Combine(projectDir, previewAppPath);
+            }
+            return previewAppPath;
+        }
+        
+        private async Task<(string appPath, string host, string quries)> OpenExeProjectAsync(Project docProject)
+        {
+            var targetName = await docProject.GetAttributeAsync("TargetName");
+            var isPackaged = (await docProject.GetAttributeAsync("AppxPackage")) == "true";
+            string previewAppPath;
+            if (isPackaged)
+            {
+                previewAppPath = $"{targetName}-WinUI3XP";
+            }
+            else
+            {
+                var outDir = await docProject.GetAttributeAsync("OutDir");
+                previewAppPath = await GetUnpackagedAppNameAsync(docProject, outDir ?? "", targetName ?? "");
+            }
+            return (previewAppPath, "show", "");
+        }
+
+        private async Task<bool> IsDllProjectAsync(Project project)
+        {
+            var isDllProjectCpp = (await project.GetAttributeAsync("ConfigurationType")) == "DynamicLibrary";
+            var isDllProjectCs = (await project.GetAttributeAsync("OutputType")) == "WinExe";
+            return isDllProjectCpp || isDllProjectCpp;
+        }
+
+        private async Task<List<string>> GetDllPathsAsync(Project project, CancellationToken token)
+        {
+            var dllPaths = new List<string>();
+            var vsProject = (await this.Extensibility.Workspaces()
+                .QueryProjectsAsync(q => q.With(p => p.ProjectReferences.With(r => r.Name))
+                    .Where(p => p.Path == project.FullPath), token)).First();
+            foreach (var reference in vsProject.ProjectReferences)
+            {
+                var dependentProject = await VS.Solutions.FindProjectsAsync(reference.Name);
+                if (dependentProject == null)
+                {
+                    continue;
+                }
+                var isDllProject = await IsDllProjectAsync(dependentProject);
+                if (!isDllProject)
+                {
+                    // Not a dll project but is referenced, assume they are not relevant (static lib/exe) for
+                    // the purpose of loadLibrary
+                    continue;
+                }
+                // Order is important: we must get dependent dll first, otherwise loadLibrary would fail
+                dllPaths.AddRange(await GetDllPathsAsync(dependentProject, token));
+            }
+            var targetName = await project.GetAttributeAsync("TargetName");
+            var outDir = await project.GetAttributeAsync("OutDir");
+            var dllPath = Path.Combine(outDir, $"{targetName}.dll");
+            dllPaths.Add(dllPath);
+            return dllPaths;
+        }
+
+        private async Task<(string appPath, string host, string quries)> OpenDllProjectAsync(Project docProject)
+        {
+            var source = new CancellationTokenSource();
+            var dllPaths = await GetDllPathsAsync(docProject, source.Token);
+            var projectName = await docProject.GetAttributeAsync("ProjectName");
+            var outDir = await docProject.GetAttributeAsync("OutDir");
+            var appPath = await GetUnpackagedAppNameAsync(docProject, $"{outDir}..\\{projectName}_Preview", "WinUI3XamlPreview_DllLoader");
+            return (appPath, "loadLibrary", string.Join("&", dllPaths.Select(x => $"dllPath={WebUtility.UrlEncode(x)}")));
         }
 
         private async Task TryWaitForAppProcessAsync(Process process)
