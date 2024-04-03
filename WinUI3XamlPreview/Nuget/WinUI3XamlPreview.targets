@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<!-- Only do this for MSBuild versions below 16.0
+             as it is since done automatically, see https://github.com/microsoft/msbuild/pull/3605-->
+		<MSBuildAllProjects Condition="'$(MSBuildToolsVersion)'  &lt;= '15'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+	</PropertyGroup>
+	<PropertyGroup>
+		<WinUI3XPEnabled Condition="'$(WinUI3XPEnabled)' == ''">true</WinUI3XPEnabled>
+	</PropertyGroup>
+	<PropertyGroup>
+		<CleanDependsOn>
+			$(CleanDependsOn);WinUI3XPClean
+		</CleanDependsOn>
+	</PropertyGroup>
+	<PropertyGroup>
+		<PreviewDir>$(OutDir)..\$(ProjectName)_Preview</PreviewDir>
+	</PropertyGroup>
+	<Target Name="WinUI3XPClean">
+		<ItemGroup>
+			<_FilesToDelete Remove="@(_FilesToDelete)"/>
+			<_FilesToDelete Include="$(PreviewDir)\**"/>
+		</ItemGroup>
+		<Delete Files="@(_FilesToDelete)"/>
+	</Target>
+	<Target Name="CopyPreviewAppToOutputDir" AfterTargets="AfterBuild" Condition="$(WinUI3XPEnabled) and $(CsWinRTComponent)">
+		<Exec Command="xcopy /y /e /i &quot;$(OutDir)&quot; &quot;$(PreviewDir)&quot;"/>
+		<!-- loader has higher priority -->
+		<Exec Command="powershell -c &quot;Expand-Archive '$(MSBuildThisFileDirectory)..\tools\WinUI3XamlPreview.DllLoader.zip' -DestinationPath '$(PreviewDir)' -Force&quot;"/>
+	</Target>
+</Project>

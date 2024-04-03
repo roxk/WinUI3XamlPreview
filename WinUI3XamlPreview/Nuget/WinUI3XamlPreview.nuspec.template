@@ -39,6 +39,7 @@
 		<file target="runtimes\win10-x64\native\WinUI3XamlPreview.dll"   src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />
 		<file target="runtimes\win10-x64\native" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />
 
+		<file target="build\WinUI3XamlPreview.targets" src="WinUI3XamlPreview.targets"/>
 		<file target="build\native\WinUI3XamlPreview.targets" src="WinUI3XamlPreview-Native.targets"/>
 
 		<!-- .NET projection -->
