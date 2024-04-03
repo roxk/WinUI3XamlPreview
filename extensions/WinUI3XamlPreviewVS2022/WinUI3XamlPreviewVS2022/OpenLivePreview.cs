@@ -223,8 +223,8 @@ namespace WinUI3XamlPreviewVS2022
         private async Task<bool> IsDllProjectAsync(Project project)
         {
             var isDllProjectCpp = (await project.GetAttributeAsync("ConfigurationType")) == "DynamicLibrary";
-            var isDllProjectCs = (await project.GetAttributeAsync("OutputType")) == "WinExe";
-            return isDllProjectCpp || isDllProjectCpp;
+            var isDllProjectCs = (await project.GetAttributeAsync("OutputType")) != "WinExe";
+            return isDllProjectCpp || isDllProjectCs;
         }
 
         private async Task<List<string>> GetDllPathsAsync(Project project, CancellationToken token)
