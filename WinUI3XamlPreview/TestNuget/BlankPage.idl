@@ -4,6 +4,5 @@ namespace TestNuget
     runtimeclass BlankPage : Microsoft.UI.Xaml.Controls.Page
     {
         BlankPage();
-        Int32 MyProperty;
     }
 }

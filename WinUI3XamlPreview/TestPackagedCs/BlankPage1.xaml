@@ -9,7 +9,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
-    <Grid>
-        <Button />
-    </Grid>
+    <StackPanel>
+        <local:MyUserControl />
+        <local:MyCustomControl />
+    </StackPanel>
 </Page>

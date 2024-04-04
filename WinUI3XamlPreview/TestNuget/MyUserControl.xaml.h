@@ -1,12 +1,12 @@
 #pragma once
 
-#include "BlankPage.g.h"
+#include "MyUserControl.g.h"
 
 namespace winrt::TestNuget::implementation
 {
-    struct BlankPage : BlankPageT<BlankPage>
+    struct MyUserControl : MyUserControlT<MyUserControl>
     {
-        BlankPage()
+        MyUserControl()
         {
             // Xaml objects should not call InitializeComponent during construction.
             // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
@@ -16,7 +16,7 @@ namespace winrt::TestNuget::implementation
 
 namespace winrt::TestNuget::factory_implementation
 {
-    struct BlankPage : BlankPageT<BlankPage, implementation::BlankPage>
+    struct MyUserControl : MyUserControlT<MyUserControl, implementation::MyUserControl>
     {
     };
 }

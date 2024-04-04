@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "BlankPage.xaml.h"
-#if __has_include("BlankPage.g.cpp")
-#include "BlankPage.g.cpp"
+#include "MyUserControl.xaml.h"
+#if __has_include("MyUserControl.g.cpp")
+#include "MyUserControl.g.cpp"
 #endif
 
 using namespace winrt;

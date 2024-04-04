@@ -6,6 +6,8 @@
   <ItemGroup>
     <Page Include="MainWindow.xaml" />
     <Page Include="BlankPage.xaml" />
+    <Page Include="MyUserControl.xaml" />
+    <Page Include="Themes\Generic.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -13,6 +15,7 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="MyCustomControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

@@ -49,4 +49,13 @@
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 	  <Exec Command="powershell -c &quot;if (test-path $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg) { exit 0 }; $(ProjectDir)..\scripts\build-nuget -version 0.0.0; move $(ProjectDir)..\Nuget\WinUI3XamlPreview.0.0.0.nupkg -destination $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg; nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages&quot;" />
   </Target>
+  <ItemGroup>
+    <CustomAdditionalCompileInputs Remove="MyUserControl.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="MyUserControl.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Remove="MyUserControl.xaml" />
+  </ItemGroup>
 </Project>

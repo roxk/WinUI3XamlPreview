@@ -1,0 +1,8 @@
+namespace TestNuget
+{
+    [default_interface]
+    runtimeclass MyUserControl : Microsoft.UI.Xaml.Controls.UserControl
+    {
+        MyUserControl();
+    }
+}

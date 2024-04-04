@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App.xaml.g.h"
+#include "MyCustomControl.h"
 
 namespace winrt::TestNuget::implementation
 {

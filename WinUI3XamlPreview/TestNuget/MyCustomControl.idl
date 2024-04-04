@@ -1,0 +1,9 @@
+namespace TestNuget
+{
+    [default_interface]
+    runtimeclass MyCustomControl : Microsoft.UI.Xaml.Controls.Control
+    {
+        MyCustomControl();
+        Int32 MyProperty;
+    }
+}
