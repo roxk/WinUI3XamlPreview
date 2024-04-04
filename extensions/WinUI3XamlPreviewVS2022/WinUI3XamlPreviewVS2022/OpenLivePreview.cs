@@ -187,20 +187,20 @@ namespace WinUI3XamlPreviewVS2022
             }
         }
 
-        private async Task<string> GetUnpackagedAppNameAsync(Project docProject, string outDir, string exeName)
+        private async Task<string> GetOutputFullPathAsync(Project docProject, string outDir, string fileName)
         {
-            string previewAppPath = Path.Combine(outDir ?? "", $"{exeName}.exe");
+            string fullPath = Path.Combine(outDir ?? "", fileName);
             // Cs project outdir is relative...Use uri to detect. Relative path somehow throw in ctor
             try
             {
-                var uri = new Uri(previewAppPath);
+                var uri = new Uri(fullPath);
             }
             catch (Exception)
             {
                 var projectDir = await docProject.GetAttributeAsync("ProjectDir");
-                previewAppPath = Path.Combine(projectDir, previewAppPath);
+                fullPath = Path.Combine(projectDir, fullPath);
             }
-            return previewAppPath;
+            return fullPath;
         }
         
         private async Task<(string appPath, string host, string quries)> OpenExeProjectAsync(Project docProject)
@@ -215,7 +215,7 @@ namespace WinUI3XamlPreviewVS2022
             else
             {
                 var outDir = await docProject.GetAttributeAsync("OutDir");
-                previewAppPath = await GetUnpackagedAppNameAsync(docProject, outDir ?? "", targetName ?? "");
+                previewAppPath = await GetOutputFullPathAsync(docProject, outDir ?? "", $"{targetName}.exe" ?? "");
             }
             return (previewAppPath, "show", "");
         }
@@ -252,7 +252,7 @@ namespace WinUI3XamlPreviewVS2022
             }
             var targetName = await project.GetAttributeAsync("TargetName");
             var outDir = await project.GetAttributeAsync("OutDir");
-            var dllPath = Path.Combine(outDir, $"{targetName}.dll");
+            var dllPath = await GetOutputFullPathAsync(project, outDir ?? "", $"{targetName}.dll");
             dllPaths.Add(dllPath);
             return dllPaths;
         }
@@ -262,7 +262,7 @@ namespace WinUI3XamlPreviewVS2022
             var source = new CancellationTokenSource();
             var projectName = await docProject.GetAttributeAsync("ProjectName");
             var outDir = await docProject.GetAttributeAsync("OutDir");
-            var appPath = await GetUnpackagedAppNameAsync(docProject, $"{outDir}..\\{projectName}_Preview", "WinUI3XamlPreview_DllLoader");
+            var appPath = await GetOutputFullPathAsync(docProject, $"{outDir}..\\{projectName}_Preview", "WinUI3XamlPreview_DllLoader.exe");
             if (_lastOpenedInfo?.AppPath == appPath)
             {
                 return (appPath, "show", "");
