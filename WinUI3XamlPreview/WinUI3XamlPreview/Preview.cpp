@@ -58,7 +58,7 @@ namespace winrt::WinUI3XamlPreview::implementation
             // Note: All errors are ignored as there is nothing meanful to show users.
             // However, since we handled the protocol, we still tell the caller that "yes, the preview
             // had been launched" (and we call exist instead).
-            // <returns>true if there are erros</returns>
+            // <returns>true if there are errors</returns>
             auto loadLibrary = [&]()
                 {
                     try
@@ -85,16 +85,46 @@ namespace winrt::WinUI3XamlPreview::implementation
                                 auto path = std::filesystem::path(dllPath);
                                 auto fileName = path.stem().wstring();
                                 auto& dllDir = path.remove_filename();
-                                auto winmdPath = std::filesystem::path(dllDir).append(fileName + L".winmd");
+                                auto winmdPath = std::filesystem::path(dllDir);
+                                winmdPath.append(fileName + L".winmd");
+                                // If a winmd exists, it's a WinRT component. We have to use manifest-free activation.
+                                // Note that LoadLibrary(dll) doesn't make RoGetActivationFactory find the factory in
+                                // the dll. Therefore, we must manually find the dll entrypoint and grab the factory
+                                // ourselves.
+                                // TODO: Investigate dynamic dependency etc to make the dll visible to combase.dll?
+                                // Then we can use the nice and compact winrt::get_activation_factory method.
+                                // TODO: Winmd might not be dll name, e.g. WASDK.
                                 if (std::filesystem::exists(winmdPath))
                                 {
-                                    auto factory = winrt::get_activation_factory(winrt::hstring(fileName) + L".XamlMetaDataProvider");
+                                    auto name = winrt::hstring(fileName) + L".XamlMetaDataProvider";
+                                    wf::IActivationFactory factory;
+                                    auto library_call = reinterpret_cast<int32_t(__stdcall*)(void* classId, void** factory)>(WINRT_IMPL_GetProcAddress(mod.get(), "DllGetActivationFactory"));
+                                    if (library_call == nullptr)
+                                    {
+                                        // Try to see if the dll is a CsWinRT component.
+                                        auto winrtHostDllPath = std::filesystem::path(dllDir);
+                                        winrtHostDllPath.append("WinRT.Host.dll");
+                                        mod.reset(LoadLibrary(winrtHostDllPath.c_str()));
+                                        if (!mod.is_valid())
+                                        {
+                                            return true;
+                                        }
+                                        library_call = reinterpret_cast<int32_t(__stdcall*)(void* classId, void** factory)>(WINRT_IMPL_GetProcAddress(mod.get(), "DllGetActivationFactory"));
+                                        if (library_call == nullptr)
+                                        {
+                                            return true;
+                                        }
+                                        name = winrt::hstring(fileName) + L"." + fileName + L"_XamlTypeInfo.XamlMetaDataProvider";
+                                    }
+                                    auto paramName = winrt::param::hstring(name);
+                                    winrt::check_hresult(library_call(*(void**)(&paramName), winrt::put_abi(factory)));
                                     _xamlMetaDataProviderLoaded(*this, factory.ActivateInstance<muxm::IXamlMetadataProvider>());
-                                }
-                                auto themePath = std::filesystem::path(dllDir).append(fileName).append("Themes\\Generic.xaml").wstring();
-                                if (std::filesystem::exists(themePath))
-                                {
-                                    _xamlThemeGenericFilePathAdded(*this, themePath);
+                                    // TODO: The file might be xbf. Handle this in main page instead. Pass ms-appx:///Namespace/Themes/Generic.xaml.
+                                    auto themePath = std::filesystem::path(dllDir).append(fileName).append("Themes\\Generic.xaml").wstring();
+                                    if (std::filesystem::exists(themePath))
+                                    {
+                                        _xamlThemeGenericFilePathAdded(*this, themePath);
+                                    }
                                 }
                                 modules.emplace_back(std::move(mod));
                             }
