@@ -3,36 +3,17 @@ using Microsoft;
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Commands;
 using Microsoft.VisualStudio.Extensibility.Documents;
-using Microsoft.VisualStudio.Extensibility.Shell;
-using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.ProjectSystem.Query;
 using Microsoft.VisualStudio.RpcContracts.Documents;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
-using Microsoft.VisualStudio.VCProjectEngine;
-using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Threading;
-using System.Xml;
-using VSLangProj;
 
 namespace WinUI3XamlPreviewVS2022
 {
-    internal static class AsyncEnumeratorExtension
-    {
-        public static async Task<T> FirstAsync<T>(this IAsyncEnumerator<T> iter)
-        {
-            if (! await iter.MoveNextAsync())
-            {
-                throw new InvalidOperationException();
-            }
-            return iter.Current;
-        }
-    }
-
     internal struct PreviewInfo
     {
         public string AppPath;
@@ -202,7 +183,7 @@ namespace WinUI3XamlPreviewVS2022
             }
             return fullPath;
         }
-        
+
         private async Task<(string appPath, string host, string quries)> OpenExeProjectAsync(Project docProject)
         {
             var targetName = await docProject.GetAttributeAsync("TargetName");
@@ -287,7 +268,7 @@ namespace WinUI3XamlPreviewVS2022
                     TurnOffPreview();
                 }
             }
-            catch (TaskCanceledException ex)
+            catch (TaskCanceledException)
             {
                 // No-op
             }
