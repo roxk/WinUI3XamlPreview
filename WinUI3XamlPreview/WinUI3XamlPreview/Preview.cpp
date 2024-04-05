@@ -70,7 +70,7 @@ namespace winrt::WinUI3XamlPreview::implementation
                             if (query.Name() == L"dllPath")
                             {
                                 const auto dllPath = query.Value().c_str();
-                                auto modu = LoadLibrary(dllPath);
+                                auto modu = LoadLibraryEx(dllPath, nullptr, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
                                 if (modu == nullptr)
                                 {
                                     mux::Application::Current().Exit();
@@ -104,7 +104,7 @@ namespace winrt::WinUI3XamlPreview::implementation
                                         // Try to see if the dll is a CsWinRT component.
                                         auto winrtHostDllPath = std::filesystem::path(dllDir);
                                         winrtHostDllPath.append("WinRT.Host.dll");
-                                        mod.reset(LoadLibrary(winrtHostDllPath.c_str()));
+                                        mod.reset(LoadLibraryEx(winrtHostDllPath.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS));
                                         if (!mod.is_valid())
                                         {
                                             return true;
