@@ -2,9 +2,9 @@ namespace WinUI3XamlPreview
 {
 unsealed runtimeclass Preview
 {
+Microsoft.UI.Xaml.Markup.IXamlMetadataProvider GetProvider(String typeName);
 static WinUI3XamlPreview.Preview Instance();
 static Windows.Foundation.IAsyncOperation<Boolean> IsXamlPreviewLaunched();
 event Windows.Foundation.EventHandler<Microsoft.UI.Xaml.Markup.IXamlMetadataProvider> XamlMetaDataProviderLoaded;
-event Windows.Foundation.EventHandler<String> XamlThemeGenericFilePathAdded;
 }
 }

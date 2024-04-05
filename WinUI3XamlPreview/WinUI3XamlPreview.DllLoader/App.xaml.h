@@ -20,8 +20,7 @@ namespace winrt::WinUI3XamlPreview_DllLoader::implementation
 
     private:
         void OnXamlMetaDataProviderLoaded(wf::IInspectable const& sender, muxm::IXamlMetadataProvider const& provider);
-        winrt::fire_and_forget OnXamlThemesGenericFilePathAdded(wf::IInspectable const& sender, winrt::hstring filePath);
-        winrt::event_token _providerLoadedToken{};
+        winrt::event_token _providerLoaded{};
         winrt::event_token _themesGenericFileAdded{};
         std::vector<muxm::IXamlMetadataProvider> _providers{};
     };

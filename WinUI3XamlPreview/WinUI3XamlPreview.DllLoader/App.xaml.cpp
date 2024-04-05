@@ -29,14 +29,12 @@ namespace winrt::WinUI3XamlPreview_DllLoader::implementation
         });
 #endif
         auto preview = WinUI3XamlPreview::Preview::Instance();
-        _providerLoadedToken = preview.XamlMetaDataProviderLoaded({ get_weak(), &App::OnXamlMetaDataProviderLoaded });
-        _themesGenericFileAdded = preview.XamlThemeGenericFilePathAdded({ get_weak(), &App::OnXamlThemesGenericFilePathAdded });
+        _providerLoaded = preview.XamlMetaDataProviderLoaded({ get_weak(), &App::OnXamlMetaDataProviderLoaded });
     }
     App::~App()
     {
         auto instance = WinUI3XamlPreview::Preview::Instance();
-        instance.XamlMetaDataProviderLoaded(_providerLoadedToken);
-        instance.XamlThemeGenericFilePathAdded(_themesGenericFileAdded);
+        instance.XamlMetaDataProviderLoaded(_providerLoaded);
     }
 
     IXamlType App::GetXamlType(::winrt::Windows::UI::Xaml::Interop::TypeName const& type)
@@ -55,6 +53,13 @@ namespace winrt::WinUI3XamlPreview_DllLoader::implementation
                         xamlType = libXamlType;
                     }
                 }
+            }
+        }
+        if (xamlType == nullptr)
+        {
+            if (auto provider = WinUI3XamlPreview::Preview::Instance().GetProvider(type.Name))
+            {
+                xamlType = provider.GetXamlType(type);
             }
         }
         return xamlType;
@@ -76,6 +81,13 @@ namespace winrt::WinUI3XamlPreview_DllLoader::implementation
                         xamlType = libXamlType;
                     }
                 }
+            }
+        }
+        if (xamlType == nullptr)
+        {
+            if (auto provider = WinUI3XamlPreview::Preview::Instance().GetProvider(fullName))
+            {
+                xamlType = provider.GetXamlType(fullName);
             }
         }
         return xamlType;
@@ -101,20 +113,5 @@ namespace winrt::WinUI3XamlPreview_DllLoader::implementation
     void App::OnXamlMetaDataProviderLoaded([[maybe_unused]] wf::IInspectable const& sender, muxm::IXamlMetadataProvider const& provider)
     {
         _providers.emplace_back(provider);
-    }
-    winrt::fire_and_forget App::OnXamlThemesGenericFilePathAdded(wf::IInspectable const& sender, winrt::hstring filePath)
-    {
-        try
-        {
-            auto file = co_await ws::StorageFile::GetFileFromPathAsync(filePath);
-            auto content = co_await ws::FileIO::ReadTextAsync(file);
-            auto dict = muxm::XamlReader::Load(content).as<mux::ResourceDictionary>();
-            auto appDict = Resources();
-            appDict.MergedDictionaries().Append(dict);
-        }
-        catch (...)
-        {
-            // TOOD: Error
-        }
     }
 }

@@ -23,6 +23,7 @@ namespace winrt::WinUI3XamlPreview::implementation
         static WinUI3XamlPreview::Preview Instance();
         [[idlgen::hide]]
         static winrt::com_ptr<Preview> InstanceInternal();
+        muxm::IXamlMetadataProvider GetProvider(winrt::hstring const& typeName);
         winrt::event_token XamlMetaDataProviderLoaded(wf::EventHandler<muxm::IXamlMetadataProvider> const& handler)
         {
             return _xamlMetaDataProviderLoaded.add(handler);
@@ -31,14 +32,6 @@ namespace winrt::WinUI3XamlPreview::implementation
         {
             _xamlMetaDataProviderLoaded.remove(token);
         }
-        winrt::event_token XamlThemeGenericFilePathAdded(wf::EventHandler<winrt::hstring> const& handler)
-        {
-            return _xamlThemeGenericFilePathAdded.add(handler);
-        }
-        void XamlThemeGenericFilePathAdded(winrt::event_token token)
-        {
-            _xamlThemeGenericFilePathAdded.remove(token);
-        }
     private:
         wf::IAsyncOperation<bool> IsXamlPreviewLaunchedInternal();
         winrt::fire_and_forget OnActivated(IInspectable sender, mwal::AppActivationArguments e);
@@ -46,7 +39,6 @@ namespace winrt::WinUI3XamlPreview::implementation
         mud::DispatcherQueue _queue{ nullptr };
         winrt::event<wf::EventHandler<winrt::hstring>> _filePathChanged;
         winrt::event<wf::EventHandler<muxm::IXamlMetadataProvider>> _xamlMetaDataProviderLoaded;
-        winrt::event<wf::EventHandler<winrt::hstring>> _xamlThemeGenericFilePathAdded;
         std::vector<wil::unique_hmodule> _modules;
     };
 }
