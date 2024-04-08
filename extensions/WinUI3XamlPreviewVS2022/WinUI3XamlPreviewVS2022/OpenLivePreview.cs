@@ -165,6 +165,7 @@ namespace WinUI3XamlPreviewVS2022
             catch (Exception ex)
             {
                 _outWindow?.Writer.WriteLineAsync(ex.ToString());
+                await VS.StatusBar.ShowMessageAsync($"Failed to start preview: {ex}");
             }
         }
 
