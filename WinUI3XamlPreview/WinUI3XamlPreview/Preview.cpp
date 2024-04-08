@@ -39,7 +39,6 @@ namespace winrt::WinUI3XamlPreview::implementation
                     return nullptr;
                 }
                 auto library_call = reinterpret_cast<int32_t(__stdcall*)(void* classId, void** factory)>(WINRT_IMPL_GetProcAddress(library.get(), "DllGetActivationFactory"));
-
                 if (!library_call)
                 {
                     return nullptr;
@@ -68,13 +67,8 @@ namespace winrt::WinUI3XamlPreview::implementation
             {
                 return provider;
             }
-            // Try to see if the dll is a CsWinRT component.
-            // TODO: Confirm A.B namespace's xamltypeinfo namespace...Is it A.B.A.B_XamlTypeInfo or A.B.B_XamlTypeInfo? Sigh.
-            provider = loader(L"WinRT.Host.dll", aNamespace + L"." + aNamespace + L"_XamlTypeInfo.XamlMetaDataProvider");
-            if (provider != nullptr)
-            {
-                return provider;
-            }
+            // TODO: CsWinRT support is currently blocked by CsWinRT's host dll issue. Renable once 
+            // https://github.com/microsoft/CsWinRT/issues/1564 is fixed
             dllPath.resize(dllPath.size() - 4);
         }
         return nullptr;
@@ -140,21 +134,6 @@ namespace winrt::WinUI3XamlPreview::implementation
                                 auto name = winrt::hstring(fileName) + L".XamlMetaDataProvider";
                                 wf::IActivationFactory factory;
                                 auto library_call = reinterpret_cast<int32_t(__stdcall*)(void* classId, void** factory)>(WINRT_IMPL_GetProcAddress(mod.get(), "DllGetActivationFactory"));
-                                if (library_call == nullptr)
-                                {
-                                    // Try to see if the dll is a CsWinRT component.
-                                    path.remove_filename().append("WinRT.Host.dll");
-                                    wil::unique_hmodule winrtMod{ load_library(path.c_str()) };
-                                    if (winrtMod.is_valid())
-                                    {
-                                        library_call = reinterpret_cast<int32_t(__stdcall*)(void* classId, void** factory)>(WINRT_IMPL_GetProcAddress(winrtMod.get(), "DllGetActivationFactory"));
-                                        if (library_call != nullptr)
-                                        {
-                                            mod.reset(winrtMod.release());
-                                            name = winrt::hstring(fileName) + L"." + fileName + L"_XamlTypeInfo.XamlMetaDataProvider";
-                                        }
-                                    }
-                                }
                                 if (library_call != nullptr)
                                 {
                                     auto paramName = winrt::param::hstring(name);
