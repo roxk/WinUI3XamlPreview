@@ -20,7 +20,7 @@ jobs:
         run: ./scripts/ci
   no-build-test:
     runs-on: windows-2022
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: ${{ startsWith(github.ref, 'refs/tags/v') && !startsWith(github.ref, 'refs/tags/vs2022-v') }}
     steps:
       - uses: actions/checkout@v3
       - working-directory: WinUI3XamlPreview
@@ -28,7 +28,7 @@ jobs:
   build:
     runs-on: windows-2022
     needs: ["no-build-test"]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: ${{ startsWith(github.ref, 'refs/tags/v') && !startsWith(github.ref, 'refs/tags/vs2022-v') }}
     env:
       VERSION: 0.3.0
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
