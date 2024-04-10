@@ -65,14 +65,25 @@
                         <x:Double>300</x:Double>
                         <x:Double>400</x:Double>
                     </ComboBox>
-                    <SymbolIcon Symbol="ZoomOut" />
+                    <SymbolIcon Margin="0,0,8,0" Symbol="ZoomOut" />
                     <Slider
                         x:Name="scaleSlider"
                         Width="144"
-                        Margin="8,0,8,0"
+                        Margin="0,0,8,0"
                         VerticalAlignment="Center"
                         ValueChanged="scaleSlider_ValueChanged" />
-                    <SymbolIcon Symbol="ZoomIn" />
+                    <SymbolIcon Margin="0,0,8,0" Symbol="ZoomIn" />
+                    <Button
+                        Width="40"
+                        Padding="0"
+                        VerticalAlignment="Stretch"
+                        BorderThickness="0"
+                        Click="fitPageButton_Click">
+                        <FontIcon
+                            Margin="2,0,2,0"
+                            VerticalAlignment="Center"
+                            Glyph="&#xE9A6;" />
+                    </Button>
                     <Rectangle
                         Width="1"
                         Margin="16,8,16,8"

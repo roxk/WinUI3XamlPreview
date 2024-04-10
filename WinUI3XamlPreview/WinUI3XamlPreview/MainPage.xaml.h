@@ -28,12 +28,14 @@ namespace winrt::WinUI3XamlPreview::implementation
         void UpdateResolutionByComboBox();
         void UpdateCurrentScale(double scale);
         void UpdateCurrentResolution(wf::Numerics::float2 resolution);
+        void FitToPage();
         void UpdateScaleByComboBoxText();
         void scaleSlider_ValueChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs const& e);
         void scaleComboBox_TextSubmitted(winrt::Microsoft::UI::Xaml::Controls::ComboBox const& sender, winrt::Microsoft::UI::Xaml::Controls::ComboBoxTextSubmittedEventArgs const& args);
         void resolutionComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e);
         template<typename T, typename D>
         void CombobBoxSelectedItem(muxc::ComboBox const& comboBox, T&& value, D display);
+        void fitPageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     };
 }
 

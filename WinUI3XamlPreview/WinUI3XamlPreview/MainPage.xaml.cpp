@@ -17,7 +17,7 @@ double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
 {
     auto item = comboBox.SelectedItem();
     auto value = winrt::unbox_value<double>(item);
-    return float(value);
+    return value;
 }
 
 namespace winrt::WinUI3XamlPreview::implementation
@@ -209,6 +209,21 @@ namespace winrt::WinUI3XamlPreview::implementation
         widthInput().Value(resolution.x);
         heightInput().Value(resolution.y);
     }
+    void MainPage::FitToPage()
+    {
+        auto scrollView = viewportScrollView();
+        auto wrapper = elementWrapper();
+        auto wrapperWidth = wrapper.ActualWidth();
+        auto wrapperHeight = wrapper.ActualHeight();
+        if (wrapperWidth == 0 || wrapperHeight == 0)
+        {
+            return;
+        }
+        auto wRatio = scrollView.ActualWidth() / wrapperWidth;
+        auto hRatio = scrollView.ActualHeight() / wrapperHeight;
+        auto ratio = wRatio < hRatio ? wRatio : hRatio;
+        UpdateCurrentScale(std::round(ratio * 100));
+    }
     void winrt::WinUI3XamlPreview::implementation::MainPage::UpdateScaleByComboBoxText()
     {
         auto comboBox = scaleComboBox();
@@ -258,8 +273,8 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::scaleComboBox_Selection
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
-    UpdateScaleByComboBox();
     UpdateResolutionByComboBox();
+    FitToPage();
 
     auto comboBox = scaleComboBox();
     auto scales = comboBox.Items();
@@ -302,4 +317,9 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::CombobBoxSelectedItem(m
         {
             strong->scaleComboBox().Text(display);
         });
+}
+
+void winrt::WinUI3XamlPreview::implementation::MainPage::fitPageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+    FitToPage();
 }
