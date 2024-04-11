@@ -22,8 +22,8 @@
 		<Reference Include="$(MSBuildThisFileDirectory)..\..\lib\uap10.0\WinUI3XamlPreview.winmd">
 			<Implementation>WinUI3XamlPreview.dll</Implementation>
 		</Reference>
-		<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\win10-$(Native-Platform)\native\WinUI3XamlPreview.dll" />
-		<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\win10-$(Native-Platform)\native\WinUI3XamlPreview.pri" />
+		<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-$(Native-Platform)\native\WinUI3XamlPreview.dll" />
+		<ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-$(Native-Platform)\native\WinUI3XamlPreview.pri" />
 	</ItemGroup>
 	<PropertyGroup>
 		<PreviewDir>$(OutDir)..\$(ProjectName)_Preview</PreviewDir>

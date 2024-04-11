@@ -32,18 +32,18 @@
 		<file target="lib\uap10.0\WinUI3XamlPreview" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
 
 		<!-- Platform DLLs and resources -->
-		<!--<file target="runtimes\win10-arm64\native\WinUI3XamlPreview.dll" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />-->
-		<!--<file target="runtimes\win10-arm64\native" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />-->
-		<!--<file target="runtimes\win10-arm64\native\WinUI3XamlPreview\Assets" src="..\WinUI3XamlPreview\arm64\Release\WinUI3XamlPreview\Assets\**\*.*"/>-->
-		<file target="runtimes\win10-x64\native\WinUI3XamlPreview" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
-		<file target="runtimes\win10-x64\native\WinUI3XamlPreview.dll"   src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />
-		<file target="runtimes\win10-x64\native" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />
+		<!--<file target="runtimes\win-arm64\native\WinUI3XamlPreview.dll" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />-->
+		<!--<file target="runtimes\win-arm64\native" src="..\WinUI3XamlPreview\ARM64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />-->
+		<!--<file target="runtimes\win-arm64\native\WinUI3XamlPreview\Assets" src="..\WinUI3XamlPreview\arm64\Release\WinUI3XamlPreview\Assets\**\*.*"/>-->
+		<file target="runtimes\win-x64\native\WinUI3XamlPreview" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview\**\*.*"/>
+		<file target="runtimes\win-x64\native\WinUI3XamlPreview.dll"   src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />
+		<file target="runtimes\win-x64\native" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />
 
 		<file target="build\WinUI3XamlPreview.targets" src="WinUI3XamlPreview.targets"/>
 		<file target="build\native\WinUI3XamlPreview.targets" src="WinUI3XamlPreview-Native.targets"/>
 
 		<!-- .NET projection -->
-		<file target="lib\net6.0-windows10.0.22621.0\WinUI3XamlPreviewCs.dll"  src="..\AnyCPU\Release\WinUI3XamlPreviewCs\bin\WinUI3XamlPreviewCs.dll" />
+		<file target="lib\net8.0-windows10.0.22621.0\WinUI3XamlPreviewCs.dll"  src="..\AnyCPU\Release\WinUI3XamlPreviewCs\bin\WinUI3XamlPreviewCs.dll" />
 
 		<!-- DLL loader app -->
 		<file target="tools\WinUI3XamlPreview.DllLoader.zip" src="WinUI3XamlPreview.DllLoader.zip" />

@@ -23,7 +23,7 @@
 		</ItemGroup>
 		<Delete Files="@(_FilesToDelete)"/>
 	</Target>
-	<Target Name="CopyPreviewAppToOutputDir" AfterTargets="AfterBuild" Condition="$(WinUI3XPEnabled) and $(CsWinRTComponent)">
+	<Target Name="CopyPreviewAppToOutputDir" AfterTargets="AfterBuild" Condition="$(WinUI3XPEnabled) and $(CsWinRTComponent) == true">
 		<Exec Command="xcopy /y /e /i &quot;$(OutDir)&quot; &quot;$(PreviewDir)&quot;"/>
 		<!-- loader has higher priority -->
 		<Exec Command="powershell -c &quot;Expand-Archive '$(MSBuildThisFileDirectory)..\tools\WinUI3XamlPreview.DllLoader.zip' -DestinationPath '$(PreviewDir)' -Force&quot;"/>

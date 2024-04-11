@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>TestPackagedCs</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230913002" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240404000" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
     <PackageReference Include="WinUI3XamlPreview" Version="0.0.0" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
@@ -47,7 +47,7 @@
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-	  <Exec Command="powershell -c &quot;if (test-path $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg) { exit 0 }; $(ProjectDir)..\scripts\build-nuget -version 0.0.0; move $(ProjectDir)..\Nuget\WinUI3XamlPreview.0.0.0.nupkg -destination $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg; nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages&quot;" />
+	  <Exec Command="powershell -c &quot;if (test-path $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg) { nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages; exit 0 }; $(ProjectDir)..\scripts\build-nuget -version 0.0.0; move $(ProjectDir)..\Nuget\WinUI3XamlPreview.0.0.0.nupkg -destination $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg; nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages&quot;" />
   </Target>
   <ItemGroup>
     <CustomAdditionalCompileInputs Remove="MyUserControl.xaml" />

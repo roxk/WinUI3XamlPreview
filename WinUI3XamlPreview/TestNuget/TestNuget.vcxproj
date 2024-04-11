@@ -233,7 +233,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('..\packages\WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinUI3XamlPreview.0.0.0\build\native\WinUI3XamlPreview.targets'))" />
   </Target>
-  <Target Name="EnsureLocalPackage" BeforeTargets="EnsureNuGetPackageBuildImports">
-    <Exec Command="powershell -c &quot;if (test-path $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg) { exit 0 }; $(ProjectDir)..\scripts\build-nuget -version 0.0.0; move $(ProjectDir)..\Nuget\WinUI3XamlPreview.0.0.0.nupkg -destination $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg; nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages&quot;" />
-  </Target>
+	<Target Name="EnsureLocalPackage" BeforeTargets="EnsureNuGetPackageBuildImports">
+		<Exec Command="powershell -c &quot;if (test-path $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg) {  nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages; exit 0 }; $(ProjectDir)..\scripts\build-nuget -version 0.0.0; move $(ProjectDir)..\Nuget\WinUI3XamlPreview.0.0.0.nupkg -destination $(ProjectDir)..\LocalPackages\WinUI3XamlPreview.0.0.0.nupkg; nuget restore $(ProjectPath) -PackagesDirectory $(ProjectDir)..\packages&quot;" />
+	</Target>
 </Project>
