@@ -8,12 +8,17 @@ namespace winrt::WinUI3XamlPreview::implementation
     {
         MainPage();
         ~MainPage();
+        [[idlgen::hide]] void Window(mux::Window const& window);
         [[idlgen::hide]] void OnFilePathChanged(wf::IInspectable const& sender, winrt::hstring const& e);
         static winrt::hstring ScaleDisplay(double scalePercentage);
+        static winrt::hstring ThemeDisplay(winrt::hstring const& theme);
         static wfc::IVector<wf::IInspectable> Resolutions();
         static winrt::hstring ResolutionDisplay(wf::IInspectable const& resolutionFloat2);
     private:
+        void SetRegionsForCustomTitleBar();
         static winrt::hstring ResolutionDisplay(wf::Numerics::float2 resolution);
+        mux::Window _window{};
+        winrt::hstring _currentTheme{};
         double _currentScale{};
         wf::Numerics::float2 _currentResolution{};
         friend struct MainPageT<MainPage>;
@@ -26,6 +31,7 @@ namespace winrt::WinUI3XamlPreview::implementation
         void Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void UpdateScaleByComboBox();
         void UpdateResolutionByComboBox();
+        void UpdateCurrentTheme(winrt::hstring const& theme);
         void UpdateCurrentScale(double scale);
         void UpdateCurrentResolution(wf::Numerics::float2 resolution);
         void FitToPage();
@@ -36,6 +42,7 @@ namespace winrt::WinUI3XamlPreview::implementation
         template<typename T, typename D>
         void CombobBoxSelectedItem(muxc::ComboBox const& comboBox, T&& value, D display);
         void fitPageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        void themeComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e);
     };
 }
 

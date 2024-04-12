@@ -90,6 +90,10 @@ namespace winrt::WinUI3XamlPreview::implementation
     {
         Preview::InstanceInternal()->FilePathChanged(_filePathChangedToken);
     }
+    void MainPage::Window(mux::Window const& window)
+    {
+        _window = window;
+    }
     void MainPage::OnFilePathChanged(IInspectable const& sender, winrt::hstring const& e)
     {
         OpenFileAndRead(e);
@@ -149,6 +153,11 @@ namespace winrt::WinUI3XamlPreview::implementation
     {
         return std::to_wstring(int(scalePercentage)) + winrt::hstring(L"%");
     }
+    winrt::hstring MainPage::ThemeDisplay(winrt::hstring const& theme)
+    {
+        mwamr::ResourceLoader res(mwamr::ResourceLoader::GetDefaultResourceFilePath(), L"WinUI3XamlPreview/Resources");
+        return res.GetString(winrt::hstring(L"ThemeDisplay_") + theme);
+    }
     wfc::IVector<IInspectable> MainPage::Resolutions()
     {
         static auto resolutions = winrt::single_threaded_vector<wf::IInspectable>({
@@ -163,6 +172,31 @@ namespace winrt::WinUI3XamlPreview::implementation
     {
         auto resolution = winrt::unbox_value<wf::Numerics::float2>(resolutionFloat2);
         return ResolutionDisplay(resolution);
+    }
+    void MainPage::SetRegionsForCustomTitleBar()
+    {
+        auto& window = _window;
+        if (window == nullptr)
+        {
+            return;
+        }
+        auto scale = Content().XamlRoot().RasterizationScale();
+        auto themeCb = themeComboBox();
+        auto transform = themeCb.TransformToVisual(nullptr);
+        auto bounds = transform.TransformBounds(wf::Rect{ 0, 0,
+            float(themeCb.ActualWidth()),
+            float(themeCb.ActualHeight())
+        });
+        auto themeCbRect = wg::RectInt32{ int32_t(bounds.X * scale),
+            int32_t(bounds.Y * scale),
+            int32_t(bounds.Width * scale),
+            int32_t(bounds.Height * scale)
+        };
+
+        wg::RectInt32 rectArray[] = { themeCbRect };
+        auto nonClientInputSrc =
+            mui::InputNonClientPointerSource::GetForWindowId(window.AppWindow().Id());
+        nonClientInputSrc.SetRegionRects(mui::NonClientRegionKind::Passthrough, rectArray);
     }
     winrt::hstring MainPage::ResolutionDisplay(wf::Numerics::float2 resolution)
     {
@@ -181,6 +215,24 @@ namespace winrt::WinUI3XamlPreview::implementation
         auto combobBox = resolutionComboBox();
         auto resolutionFloat2 = unbox_value<wf::Numerics::float2>(combobBox.SelectedItem());
         UpdateCurrentResolution(resolutionFloat2);
+    }
+    void MainPage::UpdateCurrentTheme(winrt::hstring const& theme)
+    {
+        if (!IsLoaded())
+        {
+            return;
+        }
+        if (_currentTheme == theme)
+        {
+            return;
+        }
+        _currentTheme = theme;
+        CombobBoxSelectedItem(themeComboBox(), box_value(theme), ThemeDisplay(theme));
+        elementWrapper().RequestedTheme(theme == L"System"
+            ? mux::ElementTheme::Default
+            : theme == L"Dark"
+            ? mux::ElementTheme::Dark
+            : mux::ElementTheme::Light);
     }
     void MainPage::UpdateCurrentScale(double scale)
     {
@@ -273,6 +325,7 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::scaleComboBox_Selection
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
+    SetRegionsForCustomTitleBar();
     UpdateResolutionByComboBox();
     FitToPage();
 
@@ -322,4 +375,10 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::CombobBoxSelectedItem(m
 void winrt::WinUI3XamlPreview::implementation::MainPage::fitPageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
     FitToPage();
+}
+
+
+void winrt::WinUI3XamlPreview::implementation::MainPage::themeComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
+{
+    UpdateCurrentTheme(unbox_value<winrt::hstring>(themeComboBox().SelectedItem()));
 }

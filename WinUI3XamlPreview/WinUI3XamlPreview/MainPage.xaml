@@ -10,10 +10,30 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        <Grid>
+        <ScrollView>
+            <Grid Padding="16,0,16,0">
+                <ComboBox
+                    x:Name="themeComboBox"
+                    MinWidth="96"
+                    VerticalAlignment="Center"
+                    SelectedIndex="0"
+                    SelectionChanged="themeComboBox_SelectionChanged">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Text="{x:Bind local:MainPage.ThemeDisplay((x:String))}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <x:String>System</x:String>
+                    <x:String>Light</x:String>
+                    <x:String>Dark</x:String>
+                </ComboBox>
+            </Grid>
+        </ScrollView>
+        <Grid Grid.Row="1">
             <ScrollView
                 x:Name="viewportScrollView"
                 Background="Gray"
@@ -30,7 +50,7 @@
                 VerticalAlignment="Bottom" />
         </Grid>
         <ScrollView
-            Grid.Row="1"
+            Grid.Row="2"
             BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
             BorderThickness="0,1,0,0"
             CornerRadius="0"

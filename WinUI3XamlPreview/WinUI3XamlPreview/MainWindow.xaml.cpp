@@ -3,6 +3,7 @@
 #if __has_include("MainWindow.g.cpp")
 #include "MainWindow.g.cpp"
 #endif
+#include "MainPage.xaml.h"
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -12,4 +13,10 @@ using namespace Microsoft::UI::Xaml;
 
 namespace winrt::WinUI3XamlPreview::implementation
 {
+	void MainWindow::InitializeComponent()
+	{
+		MainWindowT::InitializeComponent();
+		ExtendsContentIntoTitleBar(true);
+		mainPage().as<MainPage>()->Window(*this);
+	}
 }

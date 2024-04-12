@@ -8,5 +8,5 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <local:MainPage />
+    <local:MainPage x:Name="mainPage" />
 </Window>

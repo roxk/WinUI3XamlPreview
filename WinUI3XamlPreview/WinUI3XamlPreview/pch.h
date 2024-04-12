@@ -10,10 +10,13 @@
 #undef GetCurrentTime
 
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Graphics.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Microsoft.UI.Composition.h>
+#include <winrt/Microsoft.UI.Input.h>
+#include <winrt/Microsoft.UI.Windowing.h>
 #include <winrt/Microsoft.Windows.ApplicationModel.Resources.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
@@ -34,6 +37,7 @@ namespace winrt
 {
     namespace waa = Windows::ApplicationModel::Activation;
     namespace wf = Windows::Foundation;
+    namespace wg = Windows::Graphics;
     namespace wfc = Windows::Foundation::Collections;
     namespace ws = Windows::Storage;
     namespace mux = Microsoft::UI::Xaml;
@@ -43,4 +47,6 @@ namespace winrt
     namespace mwal = Microsoft::Windows::AppLifecycle;
     namespace mwamr = Microsoft::Windows::ApplicationModel::Resources;
     namespace mud = Microsoft::UI::Dispatching;
+    namespace mui = Microsoft::UI::Input;
+    namespace muw = Microsoft::UI::Windowing;
 }

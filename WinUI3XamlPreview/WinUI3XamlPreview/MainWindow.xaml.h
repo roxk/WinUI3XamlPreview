@@ -11,6 +11,7 @@ namespace winrt::WinUI3XamlPreview::implementation
             // Xaml objects should not call InitializeComponent during construction.
             // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
         }
+        void InitializeComponent();
     };
 }
 
