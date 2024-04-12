@@ -72,9 +72,9 @@ namespace winrt::WinUI3XamlPreview::implementation
                     continue;
                 }
                 auto strView = std::wstring_view(*attrStr);
-                auto hasXClass = attr.Name() == L"x:Class";
+                auto startsWithXColon = std::wstring_view(attr.Name())._Starts_with(L"x");
                 auto hasBinding = strView._Starts_with(L"{x:Bind") || strView._Starts_with(L"{Binding");
-                if (hasXClass || hasBinding)
+                if (startsWithXColon || hasBinding)
                 {
                     element.RemoveAttributeNode(attr);
                 }

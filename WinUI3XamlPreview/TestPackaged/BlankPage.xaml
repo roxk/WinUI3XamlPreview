@@ -12,5 +12,12 @@
         <Button Content="Test" />
         <dep:DepCustomControl />
         <dep:DepUserControl />
+        <ListView>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <TextBlock Text="{x:Bind}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </StackPanel>
 </Page>
