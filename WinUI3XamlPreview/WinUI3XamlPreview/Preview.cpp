@@ -76,7 +76,22 @@ namespace winrt::WinUI3XamlPreview::implementation
     wf::IAsyncOperation<bool> Preview::IsXamlPreviewLaunchedInternal()
     {
         auto currentInstance = mwal::AppInstance::GetCurrent();
-        const auto activatedArgs = currentInstance.GetActivatedEventArgs();
+        mwal::AppActivationArguments activatedArgs{ nullptr };
+        {
+            bool errored{};
+            try
+            {
+                activatedArgs = currentInstance.GetActivatedEventArgs();
+            }
+            catch (...)
+            {
+                errored = true;
+            }
+            if (errored || activatedArgs == nullptr)
+            {
+                co_return false;
+            }
+        }
         const auto kind = activatedArgs.Kind();
         if (kind != mwal::ExtendedActivationKind::Protocol)
         {
