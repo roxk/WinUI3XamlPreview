@@ -10,6 +10,7 @@
 #include <regex>
 
 using namespace winrt;
+using namespace std::string_view_literals;
 namespace mut = winrt::Microsoft::UI::Text;
 namespace wdxd = Windows::Data::Xml::Dom;
 
@@ -22,6 +23,53 @@ double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
 
 namespace winrt::WinUI3XamlPreview::implementation
 {
+    bool IsAttrValid(wdxd::XmlDocument const& doc, wdxd::XmlElement const& element, wdxd::XmlAttribute const& attr)
+    {
+        auto copied = element.CloneNode(false);
+        auto attributes = copied.Attributes();
+        while (true)
+        {
+            auto iter = attributes.First();
+            if (!iter.HasCurrent())
+            {
+                break;
+            }
+            auto attrNode = iter.Current();
+            if (attrNode.NodeType() != wdxd::NodeType::AttributeNode)
+            {
+                return false;
+            }
+            auto victim = attrNode.try_as<wdxd::XmlAttribute>();
+            if (victim == nullptr)
+            {
+                return false;
+            }
+            attributes.RemoveNamedItem(victim.as<wdxd::XmlAttribute>().Name());
+        }
+        auto defaultNsAttr = doc.CreateAttribute(L"xmlns");
+        defaultNsAttr.Value(L"http://schemas.microsoft.com/winfx/2006/xaml/presentation");
+        attributes.SetNamedItem(defaultNsAttr);
+        auto copiedAttr = attr.CloneNode(true);
+        auto namespaceUri = attr.NamespaceUri().try_as<winrt::hstring>();
+        if (namespaceUri == L"")
+        {
+            attributes.SetNamedItem(copiedAttr);
+        }
+        else
+        {
+            attributes.SetNamedItemNS(copiedAttr);
+        }
+        auto xml = copied.GetXml();
+        try
+        {
+            muxm::XamlReader::Load(xml);
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
     void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate)
     {
         for (auto&& node : candidate.ChildNodes())
@@ -61,20 +109,8 @@ namespace winrt::WinUI3XamlPreview::implementation
                 {
                     continue;
                 }
-                auto attrValue = attrNode.NodeValue();
-                if (attrValue == nullptr)
-                {
-                    continue;
-                }
-                auto attrStr = attrValue.try_as<winrt::hstring>();
-                if (!attrStr)
-                {
-                    continue;
-                }
-                auto strView = std::wstring_view(*attrStr);
-                auto startsWithXColon = std::wstring_view(attr.Name())._Starts_with(L"x");
-                auto hasBinding = strView._Starts_with(L"{x:Bind") || strView._Starts_with(L"{Binding");
-                if (startsWithXColon || hasBinding)
+                auto isAttrValid = IsAttrValid(doc, element, attr);
+                if (!isAttrValid)
                 {
                     element.RemoveAttributeNode(attr);
                 }
