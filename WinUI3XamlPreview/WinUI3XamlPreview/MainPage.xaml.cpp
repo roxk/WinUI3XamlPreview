@@ -4,15 +4,13 @@
 #include "MainPage.g.cpp"
 #endif
 #include <winrt/Windows.Storage.Streams.h>
-#include <winrt/Microsoft.UI.Text.h>
-#include <winrt/Windows.Data.Xml.Dom.h>
 #include "Preview.h"
 #include <regex>
+#include "XamlProcessor.h"
 
 using namespace winrt;
 using namespace std::string_view_literals;
 namespace mut = winrt::Microsoft::UI::Text;
-namespace wdxd = Windows::Data::Xml::Dom;
 
 double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
 {
@@ -23,101 +21,6 @@ double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
 
 namespace winrt::WinUI3XamlPreview::implementation
 {
-    bool IsAttrValid(wdxd::XmlDocument const& doc, wdxd::XmlElement const& element, wdxd::XmlAttribute const& attr)
-    {
-        auto copied = element.CloneNode(false);
-        auto attributes = copied.Attributes();
-        while (true)
-        {
-            auto iter = attributes.First();
-            if (!iter.HasCurrent())
-            {
-                break;
-            }
-            auto attrNode = iter.Current();
-            if (attrNode.NodeType() != wdxd::NodeType::AttributeNode)
-            {
-                return false;
-            }
-            auto victim = attrNode.try_as<wdxd::XmlAttribute>();
-            if (victim == nullptr)
-            {
-                return false;
-            }
-            attributes.RemoveNamedItem(victim.as<wdxd::XmlAttribute>().Name());
-        }
-        auto defaultNsAttr = doc.CreateAttribute(L"xmlns");
-        defaultNsAttr.Value(L"http://schemas.microsoft.com/winfx/2006/xaml/presentation");
-        attributes.SetNamedItem(defaultNsAttr);
-        auto copiedAttr = attr.CloneNode(true);
-        auto namespaceUri = attr.NamespaceUri().try_as<winrt::hstring>();
-        if (namespaceUri == L"")
-        {
-            attributes.SetNamedItem(copiedAttr);
-        }
-        else
-        {
-            attributes.SetNamedItemNS(copiedAttr);
-        }
-        auto xml = copied.GetXml();
-        try
-        {
-            muxm::XamlReader::Load(xml);
-            return true;
-        }
-        catch (...)
-        {
-            return false;
-        }
-    }
-    void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate)
-    {
-        for (auto&& node : candidate.ChildNodes())
-        {
-            auto element = node.try_as<wdxd::XmlElement>();
-            if (element == nullptr)
-            {
-                continue;
-            }
-            if (element.NodeName() == L"Window")
-            {
-                auto border = doc.CreateElement(L"Border");
-                auto children = element.ChildNodes();
-                for (auto&& child : children)
-                {
-                    border.AppendChild(child.CloneNode(true));
-                }
-                auto attributes = element.Attributes();
-                for (auto&& attrNode : attributes)
-                {
-                    border.SetAttributeNode(attrNode.CloneNode(true).as<wdxd::XmlAttribute>());
-                }
-                candidate.RemoveChild(element);
-                candidate.AppendChild(border);
-                element = border;
-            }
-            auto attributes = element.Attributes();
-            for (int i = 0; i < attributes.Size(); ++i)
-            {
-                auto attrNode = attributes.GetAt(i);
-                if (attrNode.NodeType() != wdxd::NodeType::AttributeNode)
-                {
-                    continue;
-                }
-                auto attr = attrNode.try_as<wdxd::XmlAttribute>();
-                if (attr == nullptr)
-                {
-                    continue;
-                }
-                auto isAttrValid = IsAttrValid(doc, element, attr);
-                if (!isAttrValid)
-                {
-                    element.RemoveAttributeNode(attr);
-                }
-            }
-            VisitAndTrim(doc, element);
-        }
-    }
     MainPage::MainPage()
     {
         _filePathChangedToken = Preview::InstanceInternal()->FilePathChanged({get_weak(), &MainPage::OnFilePathChanged});
@@ -138,17 +41,22 @@ namespace winrt::WinUI3XamlPreview::implementation
     {
         try
         {
-            wdxd::XmlDocument doc;
-            doc.LoadXml(xaml);
-            VisitAndTrim(doc, doc);
-            auto trimmedXaml = doc.GetXml();
-            auto tree = muxm::XamlReader::Load(trimmedXaml);
-            auto element = tree.try_as<mux::UIElement>();
-            if (element == nullptr)
+            auto processResult{ XamlProcessor::ProcessXaml(xaml) };
+            if (auto singleElement = std::get_if<SingleElement>(&processResult); singleElement != nullptr)
             {
-                return;
+                elementWrapper().Child(singleElement->element);
             }
-            elementWrapper().Child(element);
+            else if (auto multipleElement = std::get_if<MultipleElement>(&processResult); multipleElement != nullptr)
+            {
+                auto& elements = multipleElement->elements;
+                if (elements.empty())
+                {
+                    toast().ShowError(L"Nothing to show",
+                        L"ResourceDictionary doesn't contain any control template");
+                    return;
+                }
+                elementWrapper().Child(elements.front());
+            }
         }
         catch (...)
         {

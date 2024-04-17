@@ -121,6 +121,7 @@
       <DependentUpon>Toast.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="XamlProcessor.h" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml">
@@ -151,6 +152,7 @@
       <DependentUpon>Toast.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="XamlProcessor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainPage.idl">

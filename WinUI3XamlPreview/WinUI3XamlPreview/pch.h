@@ -9,6 +9,7 @@
 // conflict with Storyboard::GetCurrentTime
 #undef GetCurrentTime
 
+#include <winrt/Windows.Data.Xml.Dom.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Graphics.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -16,6 +17,7 @@
 #include <winrt/Windows.Storage.h>
 #include <winrt/Microsoft.UI.Composition.h>
 #include <winrt/Microsoft.UI.Input.h>
+#include <winrt/Microsoft.UI.Text.h>
 #include <winrt/Microsoft.UI.Windowing.h>
 #include <winrt/Microsoft.Windows.ApplicationModel.Resources.h>
 #include <winrt/Microsoft.UI.Xaml.h>
