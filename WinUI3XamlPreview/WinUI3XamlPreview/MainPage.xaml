@@ -36,11 +36,11 @@
         <Grid Grid.Row="1">
             <ScrollView
                 x:Name="viewportScrollView"
-                Background="Gray"
+                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                 CornerRadius="0">
                 <Border
                     x:Name="elementWrapper"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    Background="{ThemeResource SystemAltHighColor}"
                     BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                     BorderThickness="1" />
             </ScrollView>
