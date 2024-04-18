@@ -69,7 +69,48 @@ bool IsAttrValid(wdxd::XmlDocument const& doc, wdxd::XmlElement const& element, 
         return false;
     }
 }
-void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate, std::vector<winrt::hstring>& templateTargetTypes)
+struct CustomControlItemInfo
+{
+    winrt::hstring styleKey;
+    winrt::hstring targetType;
+};
+winrt::hstring FindControlTemplateStyleKey(wdxd::XmlElement const& templateElement)
+{
+    wdxd::XmlElement parentStyle{ nullptr };
+    wdxd::XmlElement candidate{ templateElement.ParentNode().try_as<wdxd::XmlElement>() };
+    while (candidate != nullptr)
+    {
+        if (candidate.LocalName().try_as<winrt::hstring>() == L"Style" && candidate.NamespaceUri().try_as<winrt::hstring>() == defaultNamespace)
+        {
+            parentStyle = candidate;
+            break;
+        }
+        candidate = candidate.ParentNode().try_as<wdxd::XmlElement>();
+    }
+    if (parentStyle == nullptr)
+    {
+        return L"";
+    }
+    auto attributes = parentStyle.Attributes();
+    for (auto&& attrNode : attributes)
+    {
+        if (attrNode.NodeType() != wdxd::NodeType::AttributeNode)
+        {
+            continue;
+        }
+        auto attr = attrNode.try_as<wdxd::XmlAttribute>();
+        if (attr == nullptr)
+        {
+            continue;
+        }
+        if (attr.NodeName() == L"x:Key")
+        {
+            return attr.Value();
+        }
+    }
+    return L"";
+}
+void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate, std::vector<CustomControlItemInfo>& customControlItems)
 {
     for (auto&& node : candidate.ChildNodes())
     {
@@ -103,7 +144,7 @@ void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate,
         auto isSetter = elemetName == L"Setter" && elementNamespace == defaultNamespace;
         if (isSetter)
         {
-            VisitAndTrim(doc, element, templateTargetTypes);
+            VisitAndTrim(doc, element, customControlItems);
             continue;
         }
         for (uint32_t i = 0; i < attributes.Size(); ++i)
@@ -128,11 +169,13 @@ void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate,
                 auto name = attr.NodeName();
                 if (isControlTemplate && attr.Name() == L"TargetType")
                 {
-                    templateTargetTypes.emplace_back(attr.Value());
+                    auto parentStyleKey{ FindControlTemplateStyleKey(element) };
+                    // TODO: Distinct by key + target type
+                    customControlItems.emplace_back(CustomControlItemInfo{ parentStyleKey, attr.Value() });
                 }
             }
         }
-        VisitAndTrim(doc, element, templateTargetTypes);
+        VisitAndTrim(doc, element, customControlItems);
     }
 }
 std::pair<std::wstring_view, std::wstring_view> SplitTargetTypeToNamespaceAndLocalName(std::wstring_view targetType)
@@ -148,8 +191,8 @@ winrt::WinUI3XamlPreview::ProcessResult winrt::WinUI3XamlPreview::XamlProcessor:
 {
     wdxd::XmlDocument doc;
     doc.LoadXml(xaml);
-    std::vector<winrt::hstring> templateTargetTypes;
-    VisitAndTrim(doc, doc, templateTargetTypes);
+    std::vector<CustomControlItemInfo> customControlItems;
+    VisitAndTrim(doc, doc, customControlItems);
     auto processedXaml = doc.GetXml();
     auto tree = muxm::XamlReader::Load(processedXaml);
     if (auto element = tree.try_as<mux::UIElement>(); element != nullptr)
@@ -158,12 +201,12 @@ winrt::WinUI3XamlPreview::ProcessResult winrt::WinUI3XamlPreview::XamlProcessor:
     }
     if (auto dict = tree.try_as<mux::ResourceDictionary>(); dict != nullptr)
     {
-        if (templateTargetTypes.empty())
+        if (customControlItems.empty())
         {
             return MultipleElement{};
         }
-        std::vector<mux::UIElement> elements;
-        for (auto&& targetType : templateTargetTypes)
+        std::vector<CustomControlItem> items;
+        for (auto&& control : customControlItems)
         {
             auto elementRoot = doc.CreateElementNS(box_value(winrt::hstring(defaultNamespace)), L"Border");
             auto namespaces{ GetNamespaces(doc) };
@@ -174,7 +217,7 @@ winrt::WinUI3XamlPreview::ProcessResult winrt::WinUI3XamlPreview::XamlProcessor:
             auto elementResource = doc.CreateElementNS(box_value(winrt::hstring(defaultNamespace)), L"Border.Resources");
             elementResource.AppendChild(doc.DocumentElement().CloneNode(true));
             elementRoot.AppendChild(elementResource);
-            auto targetTypeParts{ SplitTargetTypeToNamespaceAndLocalName(targetType) };
+            auto targetTypeParts{ SplitTargetTypeToNamespaceAndLocalName(control.targetType) };
             auto& targetTypePrefix{ targetTypeParts.first };
             winrt::hstring targetTypeNamespaceUri;
             for (auto&& aNamespace : namespaces)
@@ -191,13 +234,14 @@ winrt::WinUI3XamlPreview::ProcessResult winrt::WinUI3XamlPreview::XamlProcessor:
                 continue;
             }
             auto targetTypeElement = doc.CreateElementNS(box_value(targetTypeNamespaceUri), targetTypeParts.second);
+            targetTypeElement.SetAttribute(L"Style", (std::wstring(L"{StaticResource ") + control.styleKey + L"}").c_str());
             elementRoot.AppendChild(targetTypeElement);
             auto elementRootXaml = elementRoot.GetXml();
-            // TODO: Assign control template's style name
             auto targetTypeTree = muxm::XamlReader::Load(elementRootXaml);
             if (auto element = targetTypeTree.try_as<mux::UIElement>(); element != nullptr)
             {
-                elements.emplace_back(std::move(element));
+                auto displayName = control.styleKey == L"" ? control.targetType : control.targetType + L" (" + control.styleKey + L")";
+                items.emplace_back(CustomControlItem{ std::move(displayName), std::move(element)});
             }
             else
             {
@@ -205,7 +249,7 @@ winrt::WinUI3XamlPreview::ProcessResult winrt::WinUI3XamlPreview::XamlProcessor:
                 continue;
             }
         }
-        return MultipleElement{ std::move(elements) };
+        return MultipleElement{ std::move(items) };
     }
     throw hresult_not_implemented();
 }

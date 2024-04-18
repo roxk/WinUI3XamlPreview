@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:TestDep">
 
-    <Style TargetType="local:DepCustomControl">
+    <Style x:Key="DefaultDepCustomControlStyle" TargetType="local:DepCustomControl">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:DepCustomControl">
@@ -17,4 +17,19 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style x:Key="AlternateDepCustomControlStyle" TargetType="local:DepCustomControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:DepCustomControl">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <TextBlock Text="Hello from dep custom control (alternate)" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style BasedOn="{StaticResource DefaultDepCustomControlStyle}" TargetType="local:DepCustomControl" />
 </ResourceDictionary>

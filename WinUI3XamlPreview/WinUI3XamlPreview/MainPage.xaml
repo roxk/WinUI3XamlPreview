@@ -14,11 +14,17 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        <ScrollView>
+        <ScrollView x:Name="titleBar" SizeChanged="titleBar_SizeChanged">
             <Grid Padding="16,0,16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
                 <ComboBox
                     x:Name="themeComboBox"
                     MinWidth="96"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     SelectedIndex="0"
                     SelectionChanged="themeComboBox_SelectionChanged">
@@ -31,6 +37,12 @@
                     <x:String>Light</x:String>
                     <x:String>Dark</x:String>
                 </ComboBox>
+                <ComboBox
+                    x:Name="customControlComboBox"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    SelectionChanged="customControlComboBox_SelectionChanged"
+                    SizeChanged="customControlComboBox_SizeChanged" />
             </Grid>
         </ScrollView>
         <Grid Grid.Row="1">

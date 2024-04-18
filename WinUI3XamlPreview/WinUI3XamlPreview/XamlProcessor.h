@@ -11,9 +11,15 @@ namespace winrt::WinUI3XamlPreview
 		mux::UIElement element;
 	};
 
+	struct CustomControlItem
+	{
+		winrt::hstring displayName;
+		mux::UIElement element;
+	};
+
 	struct MultipleElement
 	{
-		std::vector<mux::UIElement> elements;
+		std::vector<CustomControlItem> elements;
 	};
 
 	using ProcessResult = std::variant<SingleElement, MultipleElement>;

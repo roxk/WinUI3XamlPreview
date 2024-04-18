@@ -21,7 +21,8 @@ double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
 
 namespace winrt::WinUI3XamlPreview::implementation
 {
-    MainPage::MainPage()
+    MainPage::MainPage() : 
+        _customControlNames(winrt::single_threaded_observable_vector<winrt::hstring>())
     {
         _filePathChangedToken = Preview::InstanceInternal()->FilePathChanged({get_weak(), &MainPage::OnFilePathChanged});
     }
@@ -31,7 +32,7 @@ namespace winrt::WinUI3XamlPreview::implementation
     }
     void MainPage::Window(mux::Window const& window)
     {
-        _window = window;
+        _appWindow = window.AppWindow();
     }
     void MainPage::OnFilePathChanged(IInspectable const& sender, winrt::hstring const& e)
     {
@@ -45,6 +46,7 @@ namespace winrt::WinUI3XamlPreview::implementation
             if (auto singleElement = std::get_if<SingleElement>(&processResult); singleElement != nullptr)
             {
                 elementWrapper().Child(singleElement->element);
+                UpdateCustomControlItems({});
             }
             else if (auto multipleElement = std::get_if<MultipleElement>(&processResult); multipleElement != nullptr)
             {
@@ -55,7 +57,7 @@ namespace winrt::WinUI3XamlPreview::implementation
                         L"ResourceDictionary doesn't contain any control template");
                     return;
                 }
-                elementWrapper().Child(elements.front());
+                UpdateCustomControlItems(std::move(elements));
             }
         }
         catch (...)
@@ -119,28 +121,33 @@ namespace winrt::WinUI3XamlPreview::implementation
     }
     void MainPage::SetRegionsForCustomTitleBar()
     {
-        auto& window = _window;
-        if (window == nullptr)
+        auto& appWindow = _appWindow;
+        if (appWindow == nullptr)
         {
             return;
         }
-        auto scale = Content().XamlRoot().RasterizationScale();
-        auto themeCb = themeComboBox();
-        auto transform = themeCb.TransformToVisual(nullptr);
+        auto scale = XamlRoot().RasterizationScale();
+        auto leftInset = _appWindow.TitleBar().LeftInset() / scale;
+        auto rightInset = _appWindow.TitleBar().RightInset() / scale;
+        titleBar().Margin({ leftInset, 0, rightInset, 0 });
+        wg::RectInt32 rectArray[] = { GetControlClientRect(themeComboBox()), GetControlClientRect(customControlComboBox()) };
+        auto nonClientInputSrc =
+            mui::InputNonClientPointerSource::GetForWindowId(_appWindow.Id());
+        nonClientInputSrc.SetRegionRects(mui::NonClientRegionKind::Passthrough, rectArray);
+    }
+    wg::RectInt32 MainPage::GetControlClientRect(mux::FrameworkElement const& element)
+    {
+        auto scale = element.XamlRoot().RasterizationScale();
+        auto transform = element.TransformToVisual(nullptr);
         auto bounds = transform.TransformBounds(wf::Rect{ 0, 0,
-            float(themeCb.ActualWidth()),
-            float(themeCb.ActualHeight())
-        });
-        auto themeCbRect = wg::RectInt32{ int32_t(bounds.X * scale),
+            float(element.ActualWidth()),
+            float(element.ActualHeight())
+            });
+        return wg::RectInt32{ int32_t(bounds.X * scale),
             int32_t(bounds.Y * scale),
             int32_t(bounds.Width * scale),
             int32_t(bounds.Height * scale)
         };
-
-        wg::RectInt32 rectArray[] = { themeCbRect };
-        auto nonClientInputSrc =
-            mui::InputNonClientPointerSource::GetForWindowId(window.AppWindow().Id());
-        nonClientInputSrc.SetRegionRects(mui::NonClientRegionKind::Passthrough, rectArray);
     }
     winrt::hstring MainPage::ResolutionDisplay(wf::Numerics::float2 resolution)
     {
@@ -285,6 +292,36 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::Page_Loaded(winrt::Wind
     slider.Minimum(minScale);
     slider.Maximum(maxScale);
     slider.Value(GetScaleComboBoxSelectedScalePercentage(comboBox));
+
+    customControlComboBox().ItemsSource(_customControlNames);
+}
+
+void winrt::WinUI3XamlPreview::implementation::MainPage::UpdateCustomControlItems(std::vector<CustomControlItem> items)
+{
+    _customControlNames.Clear();
+    for (auto&& item : items)
+    {
+        _customControlNames.Append(item.displayName);
+    }
+    _customControlItems = std::move(items);
+    wf::IInspectable newSelected{};
+    auto lastSelectedName = _lastSelectedCustomControlName.try_as<winrt::hstring>();
+    for (auto&& candidate : _customControlNames)
+    {
+        if (candidate == lastSelectedName)
+        {
+            newSelected = box_value(candidate);
+            break;
+        }
+    }
+    // If can't select any previous selection, select the first one.
+    if (newSelected == nullptr && _customControlNames.Size() > 0)
+    {
+        newSelected = box_value(_customControlNames.GetAt(0));
+    }
+    _lastSelectedCustomControlName = newSelected;
+    customControlComboBox().SelectedItem(newSelected);
+    customControlComboBox().Visibility(_customControlNames.Size() > 0 ? mux::Visibility::Visible : mux::Visibility::Collapsed);
 }
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::scaleSlider_ValueChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs const& e)
@@ -321,8 +358,32 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::fitPageButton_Click(win
     FitToPage();
 }
 
-
 void winrt::WinUI3XamlPreview::implementation::MainPage::themeComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
 {
     UpdateCurrentTheme(unbox_value<winrt::hstring>(themeComboBox().SelectedItem()));
+}
+
+void winrt::WinUI3XamlPreview::implementation::MainPage::customControlComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
+{
+    customControlComboBox().Width(std::numeric_limits<double>::signaling_NaN());
+    auto index = customControlComboBox().SelectedIndex();
+    if (index < 0 || index >= _customControlItems.size())
+    {
+        return;
+    }
+    auto& element = _customControlItems[index];
+    elementWrapper().Child(element.element);
+}
+
+void winrt::WinUI3XamlPreview::implementation::MainPage::titleBar_SizeChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::SizeChangedEventArgs const& e)
+{
+    SetRegionsForCustomTitleBar();
+}
+
+void winrt::WinUI3XamlPreview::implementation::MainPage::customControlComboBox_SizeChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::SizeChangedEventArgs const& e)
+{
+    // ComboBox for some reason doesn't have intrinsic width when flyout is shown if width isn't set.
+    // Workaround: set measured actual width as width so even when flyout is shown the width stay constant.
+    customControlComboBox().Width(e.NewSize().Width);
+    SetRegionsForCustomTitleBar();
 }
