@@ -123,6 +123,9 @@
   <data name="FileNotFoundTitle" xml:space="preserve">
     <value>File Not Found</value>
   </data>
+  <data name="ResourceDictionaryNoControlTemplates" xml:space="preserve">
+    <value>ResourceDictionary doesn't contain any control template</value>
+  </data>
   <data name="ThemeDisplay_Dark" xml:space="preserve">
     <value>Dark</value>
   </data>
@@ -131,6 +134,9 @@
   </data>
   <data name="ThemeDisplay_System" xml:space="preserve">
     <value>System Theme</value>
+  </data>
+  <data name="XamlLoadedNothingError" xml:space="preserve">
+    <value>Loaded But Nothing to Show</value>
   </data>
   <data name="XamlLoadErrorMessage" xml:space="preserve">
     <value>Cannot load XAML. If you added new user/custom control, build the project first. If your app is packaged, deploy it first.</value>

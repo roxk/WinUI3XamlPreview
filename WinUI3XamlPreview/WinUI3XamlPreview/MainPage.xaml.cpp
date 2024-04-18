@@ -53,8 +53,9 @@ namespace winrt::WinUI3XamlPreview::implementation
                 auto& elements = multipleElement->elements;
                 if (elements.empty())
                 {
-                    toast().ShowError(L"Nothing to show",
-                        L"ResourceDictionary doesn't contain any control template");
+                    mwamr::ResourceLoader res(mwamr::ResourceLoader::GetDefaultResourceFilePath(), L"WinUI3XamlPreview/Resources");
+                    toast().ShowError(res.GetString(L"XamlLoadedNothingError"),
+                        res.GetString(L"ResourceDictionaryNoControlTemplates"));
                     return;
                 }
                 UpdateCustomControlItems(std::move(elements));

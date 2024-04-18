@@ -123,6 +123,9 @@
   <data name="FileNotFoundTitle" xml:space="preserve">
     <value>找不到檔案</value>
   </data>
+  <data name="ResourceDictionaryNoControlTemplates" xml:space="preserve">
+    <value>ResourceDictionary 沒有任何 control template</value>
+  </data>
   <data name="ThemeDisplay_Dark" xml:space="preserve">
     <value>深色</value>
   </data>
@@ -131,6 +134,9 @@
   </data>
   <data name="ThemeDisplay_System" xml:space="preserve">
     <value>系統主題</value>
+  </data>
+  <data name="XamlLoadedNothingError" xml:space="preserve">
+    <value>已讀取但沒有東西可顯示</value>
   </data>
   <data name="XamlLoadErrorMessage" xml:space="preserve">
     <value>無法讀取 XAML。如果你新增了 User/Custom Control，請先構建專案。如果你的應用是已包裝的，請先安裝。</value>
