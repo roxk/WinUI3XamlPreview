@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.ProjectSystem.Query;
 using Microsoft.VisualStudio.RpcContracts.Documents;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.VCProjectEngine;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -124,7 +125,7 @@ namespace WinUI3XamlPreviewVS2022
                 string queries;
                 if (isExeProject)
                 {
-                    (appPath, host, queries) = await OpenExeProjectAsync(docProject);
+                    (appPath, host, queries) = await OpenExeProjectAsync(docProject, cancellationToken);
                 }
                 else
                 {
@@ -184,15 +185,58 @@ namespace WinUI3XamlPreviewVS2022
             }
             return fullPath;
         }
+        class PackageFormat { };
+        class SinglePackageProject : PackageFormat { }
+        class Wap(string targetName) : PackageFormat { public string TargetName => targetName; }
 
-        private async Task<(string appPath, string host, string quries)> OpenExeProjectAsync(Project docProject)
+#pragma warning disable VSEXTPREVIEW_PROJECTQUERY_PROPERTIES_BUILDPROPERTIES // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        private async Task<PackageFormat?> CheckPackageFormatAsync(Project docProject, CancellationToken token)
+        {
+            var isSinglePackageProject = (await docProject.GetAttributeAsync("AppxPackage")) == "true";
+            if (isSinglePackageProject)
+            {
+                return new SinglePackageProject();
+            }
+            const string entryPointPropName = "EntryPointProjectUniqueName";
+            var packagingProjects = await VS.Solutions.GetAllProjectsAsync();
+            var docProjectPath = docProject.FullPath;
+            foreach (var packagingProject in packagingProjects)
+            {
+                var entryPoint = await packagingProject.GetAttributeAsync(entryPointPropName);
+                if (!string.IsNullOrEmpty(entryPoint))
+                {
+                    try
+                    {
+                        new Uri(entryPoint);
+                    }
+                    catch
+                    {
+                        // entryPoint is relative.
+                        var packagingProjectDir = await packagingProject.GetAttributeAsync("ProjectDir");
+                        entryPoint = Path.GetFullPath(Path.Combine(packagingProjectDir, entryPoint));
+                    }
+                    if (entryPoint == docProjectPath)
+                    {
+                        return new Wap(await packagingProject.GetAttributeAsync("TargetName") ?? throw new InvalidOperationException("Project doesn't have TargetName"));
+                    }
+                }
+            }
+            return null;
+        }
+#pragma warning restore VSEXTPREVIEW_PROJECTQUERY_PROPERTIES_BUILDPROPERTIES // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+        private async Task<(string appPath, string host, string quries)> OpenExeProjectAsync(Project docProject, CancellationToken token)
         {
             var targetName = await docProject.GetAttributeAsync("TargetName");
-            var isPackaged = (await docProject.GetAttributeAsync("AppxPackage")) == "true";
+            var packageFormat = await CheckPackageFormatAsync(docProject, token);
             string previewAppPath;
-            if (isPackaged)
+            if (packageFormat is SinglePackageProject)
             {
                 previewAppPath = $"{targetName}-WinUI3XP";
+            }
+            else if (packageFormat is Wap wap)
+            {
+                previewAppPath = $"{wap.TargetName}-WinUI3XP";
             }
             else
             {
