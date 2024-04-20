@@ -366,7 +366,9 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::themeComboBox_Selection
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::customControlComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
 {
-    customControlComboBox().Width(std::numeric_limits<double>::signaling_NaN());
+    // Set to 0 first, and then in size changed event set to NaN again.
+    // See UpdateCustomControlComboBoxSize for more details.
+    customControlComboBox().Width(0);
     auto index = customControlComboBox().SelectedIndex();
     if (index < 0 || index >= _customControlItems.size())
     {
@@ -383,8 +385,23 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::titleBar_SizeChanged(wi
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::customControlComboBox_SizeChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::SizeChangedEventArgs const& e)
 {
+    UpdateCustomControlComboBoxSize();
+}
+
+void winrt::WinUI3XamlPreview::implementation::MainPage::UpdateCustomControlComboBoxSize()
+{
     // ComboBox for some reason doesn't have intrinsic width when flyout is shown if width isn't set.
     // Workaround: set measured actual width as width so even when flyout is shown the width stay constant.
-    customControlComboBox().Width(e.NewSize().Width);
+    // Note: We need to set as 0 first, and then set NaN because there was a bug where SizeChanged doesn't
+    // fire if the width ends up being the same after setting Width to NaN.
+    // Workaround of workaround: Set to 0 first to force width to be different
+    auto cb = customControlComboBox();
+    if (cb.Width() == 0)
+    {
+        cb.Width(std::numeric_limits<double>::signaling_NaN());
+        return;
+    }
+    auto width = cb.ActualWidth();
+    cb.Width(width);
     SetRegionsForCustomTitleBar();
 }
