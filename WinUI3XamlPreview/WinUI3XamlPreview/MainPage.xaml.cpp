@@ -348,9 +348,9 @@ template<typename T, typename D>
 void winrt::WinUI3XamlPreview::implementation::MainPage::CombobBoxSelectedItem(muxc::ComboBox const& comboBox, T&& value, D display)
 {
     comboBox.SelectedItem(value);
-    mud::DispatcherQueue::GetForCurrentThread().TryEnqueue([strong = get_strong(), display = std::move(display)]()
+    mud::DispatcherQueue::GetForCurrentThread().TryEnqueue([cb = comboBox, display = std::move(display)]()
         {
-            strong->scaleComboBox().Text(display);
+            cb.Text(display);
         });
 }
 
