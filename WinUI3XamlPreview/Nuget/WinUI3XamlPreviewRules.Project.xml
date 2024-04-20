@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule Name="WinUI3XP" DisplayName="WinUI3XamlPreview" Order="75" PageTemplate="generic" xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+    <Rule.Categories>
+        <Category Name="General" DisplayName="General"/>
+    </Rule.Categories>
+
+    <Rule.DataSource>
+        <DataSource Persistence="ProjectFile" HasConfigurationCondition="false" Label="Globals" />
+    </Rule.DataSource>
+
+    <BoolProperty Name="WinUI3XPEnabled"
+                  DisplayName="Enable WinUI3XamlPreview"
+                  Description="Enable WinUI3XamlPreview. Default is true."
+                  Category="General" />
+
+	<StringProperty Name="WinUI3XPLaunchProject"
+                    DisplayName="Launch Project"
+                    Description="Name of the project to launch for previewing this project's XAML. Useful for DLL or WAP projects."
+                    Category="General" />
+
+</Rule>

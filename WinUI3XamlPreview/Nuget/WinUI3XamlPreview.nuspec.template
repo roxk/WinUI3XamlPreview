@@ -21,6 +21,7 @@
 	<files>
 		<file src="..\..\README.md"/>
 		<file src="..\..\LICENSE"/>
+		<file target="build\WinUI3XamlPreviewRules.Project.xml" src="WinUI3XamlPreviewRules.Project.xml"/>
 
 		<!-- Ref: https://docs.microsoft.com/en-us/nuget/guides/create-uwp-packages -->
 		<!-- Note: Only WinRT stuff use namespace as file name, i.e. winmd and pri -->
@@ -39,7 +40,9 @@
 		<file target="runtimes\win-x64\native\WinUI3XamlPreview.dll"   src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.dll" />
 		<file target="runtimes\win-x64\native" src="..\x64\Release\WinUI3XamlPreview\WinUI3XamlPreview.pri" />
 
+		<file target="build\WinUI3XamlPreview.props" src="WinUI3XamlPreview.props"/>
 		<file target="build\WinUI3XamlPreview.targets" src="WinUI3XamlPreview.targets"/>
+		<file target="build\native\WinUI3XamlPreview.props" src="WinUI3XamlPreview-Native.props"/>
 		<file target="build\native\WinUI3XamlPreview.targets" src="WinUI3XamlPreview-Native.targets"/>
 
 		<!-- .NET projection -->
