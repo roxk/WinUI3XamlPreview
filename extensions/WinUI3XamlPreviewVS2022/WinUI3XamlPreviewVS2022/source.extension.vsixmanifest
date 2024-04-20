@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="WinUI3XamlPreviewVS2022.419c3506-e387-4816-bc98-50b888b96498" Version="0.3.0" Language="en-US" Publisher="Roxk Yiu" />
+    <Identity Id="WinUI3XamlPreviewVS2022.419c3506-e387-4816-bc98-50b888b96498" Version="0.4.0" Language="en-US" Publisher="Roxk Yiu" />
     <DisplayName>WinUI3XamlPreview VS2022 Extension</DisplayName>
     <Description>This extension allows developers to see a live preview while writing XAML in WinUI 3</Description>
 	<Tags>WinUI3, WinUI 3, WinUI, XAML, Preview</Tags>
