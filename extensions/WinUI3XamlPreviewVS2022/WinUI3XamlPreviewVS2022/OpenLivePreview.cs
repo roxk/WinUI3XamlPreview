@@ -119,12 +119,18 @@ namespace WinUI3XamlPreviewVS2022
                 }
                 var isExeProjectCpp = (await docProject.GetAttributeAsync("ConfigurationType")) == "Application";
                 var isExeProjectCs = (await docProject.GetAttributeAsync("OutputType")) == "WinExe";
-                var isExeProject = isExeProjectCpp || isExeProjectCs;
+                var customLaunchProjectName = await docProject.GetAttributeAsync("WinUI3XPLaunchProject");
+                var isExeProjectCustom = customLaunchProjectName != null;
+                var isExeProject = isExeProjectCpp || isExeProjectCs || isExeProjectCustom;
                 string appPath;
                 string host;
                 string queries;
                 if (isExeProject)
                 {
+                    if (isExeProjectCustom)
+                    {
+                        docProject = await VS.Solutions.FindProjectsAsync(customLaunchProjectName ?? "") ?? throw new InvalidOperationException($"Project {customLaunchProjectName} doesn't exist");
+                    }
                     (appPath, host, queries) = await OpenExeProjectAsync(docProject, cancellationToken);
                 }
                 else
@@ -189,7 +195,6 @@ namespace WinUI3XamlPreviewVS2022
         class SinglePackageProject : PackageFormat { }
         class Wap(string targetName) : PackageFormat { public string TargetName => targetName; }
 
-#pragma warning disable VSEXTPREVIEW_PROJECTQUERY_PROPERTIES_BUILDPROPERTIES // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private async Task<PackageFormat?> CheckPackageFormatAsync(Project docProject, CancellationToken token)
         {
             var isSinglePackageProject = (await docProject.GetAttributeAsync("AppxPackage")) == "true";
@@ -223,7 +228,6 @@ namespace WinUI3XamlPreviewVS2022
             }
             return null;
         }
-#pragma warning restore VSEXTPREVIEW_PROJECTQUERY_PROPERTIES_BUILDPROPERTIES // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         private async Task<(string appPath, string host, string quries)> OpenExeProjectAsync(Project docProject, CancellationToken token)
         {
