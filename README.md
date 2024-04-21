@@ -14,6 +14,7 @@ Contributions are welcome! :D
 - Interactive preview of your XAML code (powered by `XamlReader`)
 - Integration with VS2022 17.9+
 - Reload via opening/saving/switching
+- Supports packaged (single project, or with WAP project) or unpackaged app
 - Supports your own user control and custom control
 - Supports controls in dependency (i.e. libraries)
 - Supports control template previewing with control+style dropdown
@@ -30,6 +31,10 @@ Contributions are welcome! :D
 |Static WinRT Component (Direct\*) | ❌ | ❌ |
 
 \*See section below on Direct vs Sample App
+
+### Packaged App with WAP (Windows Application Package) project Support
+
+The VS2022 extension would automatically find the WAP project that packages your app. If you have multiple WAP packages packaging the same app, the behavior is undefined. In this scenario, it's recommended you use the `WinUI3XPLaunchProject` property to specify which project to launch. See [Configuration](#Configuration) section for more details.
 
 ### WinRT Component Support - Direct Mode and Sample App Mode
 
