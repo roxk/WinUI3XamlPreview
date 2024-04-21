@@ -30,7 +30,7 @@ jobs:
     needs: ["no-build-test"]
     if: ${{ startsWith(github.ref, 'refs/tags/v') && !startsWith(github.ref, 'refs/tags/vs2022-v') }}
     env:
-      VERSION: 0.8.0
+      VERSION: 0.8.1
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
     steps:
       - uses: actions/checkout@v3
