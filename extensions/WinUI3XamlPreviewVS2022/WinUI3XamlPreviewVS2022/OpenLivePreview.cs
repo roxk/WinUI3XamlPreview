@@ -77,7 +77,7 @@ namespace WinUI3XamlPreviewVS2022
         private async Task TryOpenActiveDocumentAsync(CancellationToken cancellationToken)
         {
             var doc = await VS.Documents.GetActiveDocumentViewAsync();
-            if (doc == null)
+            if (doc == null || doc.FilePath == "Temp.txt")
             {
                 return;
             }
