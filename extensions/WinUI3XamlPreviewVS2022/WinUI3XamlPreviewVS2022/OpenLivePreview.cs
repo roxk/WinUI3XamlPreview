@@ -120,7 +120,7 @@ namespace WinUI3XamlPreviewVS2022
                 var isExeProjectCpp = (await docProject.GetAttributeAsync("ConfigurationType")) == "Application";
                 var isExeProjectCs = (await docProject.GetAttributeAsync("OutputType")) == "WinExe";
                 var customLaunchProjectName = await docProject.GetAttributeAsync("WinUI3XPLaunchProject");
-                var isExeProjectCustom = customLaunchProjectName != null;
+                var isExeProjectCustom = !string.IsNullOrEmpty(customLaunchProjectName);
                 var isExeProject = isExeProjectCpp || isExeProjectCs || isExeProjectCustom;
                 string appPath;
                 string host;
