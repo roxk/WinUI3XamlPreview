@@ -42,7 +42,8 @@
                     Grid.Column="2"
                     VerticalAlignment="Center"
                     SelectionChanged="customControlComboBox_SelectionChanged"
-                    SizeChanged="customControlComboBox_SizeChanged" />
+                    SizeChanged="customControlComboBox_SizeChanged"
+                    Visibility="Collapsed" />
             </Grid>
         </ScrollView>
         <Grid Grid.Row="1">
