@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "MainPage.xaml.h"
+#if __has_include("ScaleValue.g.cpp")
+#include "ScaleValue.g.cpp"
+#endif
 #if __has_include("MainPage.g.cpp")
 #include "MainPage.g.cpp"
 #endif
@@ -11,13 +14,6 @@
 using namespace winrt;
 using namespace std::string_view_literals;
 namespace mut = winrt::Microsoft::UI::Text;
-
-double GetScaleComboBoxSelectedScalePercentage(muxc::ComboBox const& comboBox)
-{
-    auto item = comboBox.SelectedItem();
-    auto value = winrt::unbox_value<double>(item);
-    return value;
-}
 
 namespace winrt::WinUI3XamlPreview::implementation
 {
@@ -96,14 +92,23 @@ namespace winrt::WinUI3XamlPreview::implementation
                 message);
         }
     }
-    winrt::hstring MainPage::ScaleDisplay(double scalePercentage)
-    {
-        return std::to_wstring(int(scalePercentage)) + winrt::hstring(L"%");
-    }
     winrt::hstring MainPage::ThemeDisplay(winrt::hstring const& theme)
     {
         mwamr::ResourceLoader res(mwamr::ResourceLoader::GetDefaultResourceFilePath(), L"WinUI3XamlPreview/Resources");
         return res.GetString(winrt::hstring(L"ThemeDisplay_") + theme);
+    }
+    wfc::IVector<wf::IInspectable> MainPage::Scales()
+    {
+        static auto scales = winrt::single_threaded_vector<wf::IInspectable>({
+               winrt::make<ScaleValue>(25),
+               winrt::make<ScaleValue>(50),
+               winrt::make<ScaleValue>(75),
+               winrt::make<ScaleValue>(100),
+               winrt::make<ScaleValue>(200),
+               winrt::make<ScaleValue>(300),
+               winrt::make<ScaleValue>(400),
+            });
+        return scales;
     }
     wfc::IVector<IInspectable> MainPage::Resolutions()
     {
@@ -157,11 +162,6 @@ namespace winrt::WinUI3XamlPreview::implementation
         // Wish we have hstring builder exposed. Right now it's in impl.
         return width + winrt::hstring(L"x") + height;
     }
-    void MainPage::UpdateScaleByComboBox()
-    {
-        auto scale = GetScaleComboBoxSelectedScalePercentage(scaleComboBox());
-        UpdateCurrentScale(scale);
-    }
     void MainPage::UpdateResolutionByComboBox()
     {
         auto combobBox = resolutionComboBox();
@@ -179,7 +179,7 @@ namespace winrt::WinUI3XamlPreview::implementation
             return;
         }
         _currentTheme = theme;
-        CombobBoxSelectedItem(themeComboBox(), box_value(theme), ThemeDisplay(theme));
+        themeComboBox().SelectedItem(box_value(theme));
         elementWrapper().RequestedTheme(theme == L"System"
             ? mux::ElementTheme::Default
             : theme == L"Dark"
@@ -188,16 +188,35 @@ namespace winrt::WinUI3XamlPreview::implementation
     }
     void MainPage::UpdateCurrentScale(double scale)
     {
+        if (scale < scaleSlider().Minimum())
+        {
+            scale = scaleSlider().Minimum();
+        }
+        else if (scale > scaleSlider().Maximum())
+        {
+            scale = scaleSlider().Maximum();
+        }
+        UpdateCurrentScale(winrt::make<ScaleValue>(scale));
+    }
+    void MainPage::UpdateCurrentScale(WinUI3XamlPreview::ScaleValue const& scaleItem)
+    {
         if (!IsLoaded())
         {
             return;
         }
-        if (_currentScale == scale)
+        if (_currentScale == scaleItem || (_currentScale != nullptr && _currentScale.Scale() == scaleItem.Scale()))
         {
             return;
         }
-        _currentScale = scale;
-        CombobBoxSelectedItem(scaleComboBox(), box_value(scale), ScaleDisplay(scale));
+        _currentScale = scaleItem;
+        if (scaleComboBox().SelectedItem() != _currentScale)
+        {
+            scaleComboBox().SelectedItem(_currentScale);
+        }
+        UpdateScaleForSliderAndScrollView(scaleItem.Scale());
+    }
+    void MainPage::UpdateScaleForSliderAndScrollView(double scale)
+    {
         scaleSlider().Value(scale);
         auto zoom = float(scale * 0.01);
         viewportScrollView().ZoomTo(zoom,
@@ -236,14 +255,41 @@ namespace winrt::WinUI3XamlPreview::implementation
             auto text = comboBox.Text();
             auto scaleStr = std::wstring{ text.back() == L'%' ? std::wstring_view(text).substr(0, text.size() - 1) : text.c_str() };
             auto scale = std::stod(scaleStr);
-            CombobBoxSelectedItem(comboBox, box_value(scale), ScaleDisplay(scale));
+            UpdateCurrentScale(scale);
         }
         catch (...)
         {
             auto item = comboBox.SelectedItem();
-            auto scale = winrt::unbox_value<double>(item);
-            CombobBoxSelectedItem(scaleComboBox(), box_value(scale), ScaleDisplay(scale));
+            // We update the item directly, bypassing the currentScale == item check
+            scaleComboBox().SelectedItem(item);
+            UpdateCurrentScale(item.as<WinUI3XamlPreview::ScaleValue>());
         }
+    }
+    ScaleValue::ScaleValue(double scale) : _scale(scale), _displayName(ScaleDisplay(scale))
+    {
+    }
+    double ScaleValue::Scale()
+    {
+        return _scale;
+    }
+    // We need DisplayMemberPath="DisplayName" _and_ ToString() because:
+    // 1. ItemsControl respect bindable, but not ToString
+    // 2. ComboBox's editable handling respect ToString, but not bindable
+    // ICustomPropertyProvider.GetStringRepresentation works for both, but implementing it is a PITA
+    // so we combines both (1) and (2). Technically we can also use ItemTemplate instead of (1) but
+    // I've spent enough time on finding/working around combobox's bugs
+    // (In fairness, it's only when you set IsEditable="True" that you see all of these nonsense...)
+    winrt::hstring ScaleValue::DisplayName()
+    {
+        return _displayName;
+    }
+    winrt::hstring ScaleValue::ToString()
+    {
+        return DisplayName();
+    }
+    winrt::hstring ScaleValue::ScaleDisplay(double scalePercentage)
+    {
+        return std::to_wstring(int(scalePercentage)) + winrt::hstring(L"%");
     }
 }
 
@@ -272,19 +318,18 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::heightInput_ValueChange
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::scaleComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
 {
-    UpdateScaleByComboBox();
+    UpdateCurrentScale(e.AddedItems().GetAt(0).as<WinUI3XamlPreview::ScaleValue>());
 }
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
     SetRegionsForCustomTitleBar();
     UpdateResolutionByComboBox();
-    FitToPage();
 
     auto comboBox = scaleComboBox();
     auto scales = comboBox.Items();
-    auto minScale = unbox_value<double>(scales.GetAt(0));
-    auto maxScale = unbox_value<double>(scales.GetAt(scales.Size() - 1));
+    auto minScale = scales.GetAt(0).as<ScaleValue>()->Scale();
+    auto maxScale = scales.GetAt(scales.Size() - 1).as<ScaleValue>()->Scale();
     auto viewportSV = viewportScrollView();
     viewportSV.MinZoomFactor(minScale * 0.01);
     viewportSV.MaxZoomFactor(maxScale * 0.01);
@@ -292,7 +337,8 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::Page_Loaded(winrt::Wind
     auto slider = scaleSlider();
     slider.Minimum(minScale);
     slider.Maximum(maxScale);
-    slider.Value(GetScaleComboBoxSelectedScalePercentage(comboBox));
+
+    FitToPage();
 
     customControlComboBox().ItemsSource(_customControlNames);
 }
@@ -340,18 +386,6 @@ void winrt::WinUI3XamlPreview::implementation::MainPage::scaleComboBox_TextSubmi
 void winrt::WinUI3XamlPreview::implementation::MainPage::resolutionComboBox_SelectionChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e)
 {
     UpdateResolutionByComboBox();
-}
-
-// Situation: Setting ComboBox's Text _after_ setting selected item inside selection changed event doesn't update Text
-// correctly, likely because it is internally tring to set text as well. Workaround: Set text after the event.
-template<typename T, typename D>
-void winrt::WinUI3XamlPreview::implementation::MainPage::CombobBoxSelectedItem(muxc::ComboBox const& comboBox, T&& value, D display)
-{
-    comboBox.SelectedItem(value);
-    mud::DispatcherQueue::GetForCurrentThread().TryEnqueue([cb = comboBox, display = std::move(display)]()
-        {
-            cb.Text(display);
-        });
 }
 
 void winrt::WinUI3XamlPreview::implementation::MainPage::fitPageButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)

@@ -21,6 +21,7 @@
     <UseWinUI>true</UseWinUI>
     <DesktopCompatible>true</DesktopCompatible>
     <IdlGenCppExclude>pch.h</IdlGenCppExclude>
+	<WinUI3XPLaunchProject>WinUI3XamlPreview.DllLoader</WinUI3XPLaunchProject>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">

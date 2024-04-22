@@ -14,38 +14,43 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        <ScrollView x:Name="titleBar" SizeChanged="titleBar_SizeChanged">
-            <Grid Padding="16,0,16,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <ComboBox
-                    x:Name="themeComboBox"
-                    MinWidth="96"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    SelectedIndex="0"
-                    SelectionChanged="themeComboBox_SelectionChanged">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="x:String">
-                            <TextBlock Text="{x:Bind local:MainPage.ThemeDisplay((x:String))}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                    <x:String>System</x:String>
-                    <x:String>Light</x:String>
-                    <x:String>Dark</x:String>
-                </ComboBox>
-                <ComboBox
-                    x:Name="customControlComboBox"
-                    Grid.Column="2"
-                    VerticalAlignment="Center"
-                    SelectionChanged="customControlComboBox_SelectionChanged"
-                    SizeChanged="customControlComboBox_SizeChanged"
-                    Visibility="Collapsed" />
-            </Grid>
-        </ScrollView>
+        <Border BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+            <ScrollView
+                x:Name="titleBar"
+                CornerRadius="0"
+                SizeChanged="titleBar_SizeChanged">
+                <Grid Padding="16,0,16,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox
+                        x:Name="themeComboBox"
+                        MinWidth="96"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        SelectedIndex="0"
+                        SelectionChanged="themeComboBox_SelectionChanged">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <TextBlock Text="{x:Bind local:MainPage.ThemeDisplay((x:String))}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                        <x:String>System</x:String>
+                        <x:String>Light</x:String>
+                        <x:String>Dark</x:String>
+                    </ComboBox>
+                    <ComboBox
+                        x:Name="customControlComboBox"
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        SelectionChanged="customControlComboBox_SelectionChanged"
+                        SizeChanged="customControlComboBox_SizeChanged"
+                        Visibility="Collapsed" />
+                </Grid>
+            </ScrollView>
+        </Border>
         <Grid Grid.Row="1">
             <ScrollView
                 x:Name="viewportScrollView"
@@ -81,23 +86,11 @@
                         MinWidth="96"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"
+                        DisplayMemberPath="DisplayName"
                         IsEditable="true"
-                        SelectedIndex="0"
+                        ItemsSource="{x:Bind local:MainPage.Scales()}"
                         SelectionChanged="scaleComboBox_SelectionChanged"
-                        TextSubmitted="scaleComboBox_TextSubmitted">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="x:Double">
-                                <TextBlock Text="{x:Bind local:MainPage.ScaleDisplay((x:Double))}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                        <x:Double>25</x:Double>
-                        <x:Double>50</x:Double>
-                        <x:Double>75</x:Double>
-                        <x:Double>100</x:Double>
-                        <x:Double>200</x:Double>
-                        <x:Double>300</x:Double>
-                        <x:Double>400</x:Double>
-                    </ComboBox>
+                        TextSubmitted="scaleComboBox_TextSubmitted" />
                     <SymbolIcon Margin="0,0,8,0" Symbol="ZoomOut" />
                     <Slider
                         x:Name="scaleSlider"
