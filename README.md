@@ -176,4 +176,41 @@ You can configure the behavior of WinUI3XamlPreview via a dedicated property pag
 
 ## Technical Details
 
-TODO
+WinUI3XamlPreview is possible thanks to the following facts:
+
+1. `XamlReader` is powerful enough to read it any valid XAML (sans limitation, see below)
+2. WASDK supports activation redirection
+3. Windows support passing protocol directly to an app (instead of just shell executing the protocol)
+4. WinUI 3 supports creating window manually (at least trivially)
+
+### Challenges
+
+#### Reliability
+
+##### Dependencies
+
+A complete XAML preview feature should be able to preview any valid XAML as if it has been compiled and shipped with the app. One limitation in the UWP's built-in support of preview is that it doesn't load any non-WinRT DLL. That is, if your control relies on any plain C/C++/C# library, the preview simply gives up and throws exception. 
+
+The built-in preview has this limitation because it's building another app behind the scene and dynamically copy-and-pasting WinRT DLLs next to that app. _Any_ approach that tries to use another app to load XAML would have this issue. In fact, WinUI3XamlPreview's WinRT Component Direct mode has this exact issue. To solve this issue, WinUI3XamlPreview uses an _intrusive_ approach.
+
+UWP's built-in preview is _nonintrusive_. That is, it tries to work without any user intervention. It doesn't inject code to your app [1], doesn't require users to configure anything. The upside is zero-effort from the user: the preview app is transparent to user's own app. The downside is there is a limit with this approach in terms of robustness, as described above. 
+
+WinUI3XamlPreview is _intrusive_. It runs code in your app, requires some minimal setup for protocol activation. The downside is the app now needs to be aware of the preview functionality, users might need to conditionally disable/enable it. But the upside is a guarantee that if your app can load the XAML, the preview can preview it. Complete robustness and reliability. WinUI3XamlPreview explicitly choose reliability over zero-effort-from-user.
+
+Since the downside of WinUI3XamlPreview is UX, plenty of solutions are available. We can borrow react native's solution of providing a wrapper application that handles the protocol activation. Or we can provide a set of templates that handles the minimal setup for the user. The fact that the preview runs in user's app remains, but these solution effectively achieves zero effort from the user.
+
+##### XAML
+
+`XamlReader` while powerful, comes with its own set of limitation. WinUI3XamlPreview essentially has to trim XAML of unsupported XAML before feeding to `XamlReader`.
+
+The obvious offenders are anything `x:` related. Attributes with `x:` prefix are for compiled-binding, and obviously wouldn't work in `XamlReader`.
+
+Another is event binding. The doc says XAML shouldn't contain any event binding, and in early test it's found that event binding are simply silently ignored. But as development unfolds, WinUI3XamlPreview had encountered bugs where binding of a seemingly innocent event would cause `XamlReader` to throw. So it turns out any custom event would cause `XamlReader` to freak out.
+
+WinUI3XamlPreview tried to be clever and calls into `XamlMetadataProvider` to see if an event is custom, but it turns out there is no way to grab built-in control's provider, and even built-in control has unsupported events. The solution used is to parse each element and attribute _one by one_. If the attribute causes `XamlReader` to throw, it's discarded, otherwise it's kept.
+
+One last piece of the puzzle comes from the fact to support control templates, we have to parse styles and find control template names and style names. So it turns out `Setter` cannot be used standalone and must be embeded as children of `Style` or `VisualStateManager`. Handling these exceptions make the parsing code feel more arbitrary, but is currently manageable.
+
+I'd like to mention a random limitation related to control template support: `Resources.Uri` doesn't support file path. It only supports `ms-appx` Uri. This makes control template rendering needlessly boilerplate-y since WinUI3XamlPreview now have to insert manualy load the resource dictionary, parse the XML, manipulate the XML tree, re-insert the dictionary to the tree containing the control, and so on.
+
+But with all these efforts, the result is a fool-proof `XamlReader`. It seems WinUI3XamlPreview's trimmer sometimes prune valid attributes (e.g. in control templates), but the foundation should be reliable enough that fixing these doesn't require more ad-hoc element/attribute-specific handling.
