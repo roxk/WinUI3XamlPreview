@@ -127,17 +127,11 @@ Make sure to replace `$YourTargetName` with your build output name. E.g. if your
 
 1. Install the [VS extension](https://marketplace.visualstudio.com/items?itemName=Roxk.winui3xamlpreview). Require VS2022 17.9+
 
-2. On your WinUI 3 WinRT Component's _Sample App project_ that uses this feature, install the nuget
+2. On your WinUI 3 WinRT Component's _Sample App project_ that uses this feature, follow the steps in [App project](#AppProject) to set it up.
 
-```
-nuget install WinUI3XamlPreview
-```
+3. On your _WinUI 3 WinRT Component project_, add `<WinUI3XPLaunchProject>$SampleAppProjectName</WinUI3XPLaunchProject>` property. Make sure you replace `$SampleAppProjectName` with the name of the sample app project. E.g. if your WinRT Component's project name is `Lib`, your sample app (test app)'s project name is `LibTest`, the correct property value is `LibTest`. If you do not want to edit project file directly, you can (1) install the nuget on your _WinUI 3 WinRT Component project_, (2) edit the property by right clicking the component project in Visual Studio -> Properties -> WinUI3XamlPreview tab -> edit Launch Project. Make sure you disable the preview to save compile time. See [Configuration](#Configuration) section for more details
 
-3. If you are using C++, add `<winrt/WinUI3XamlPreview.h` to `pch.h` of your _Sample App Project_. C# users can go to the next step.
-
-4. On your _WinUI 3 WinRT Component project_, add `<WinUI3XPLaunchProject>$SampleAppProjectName</WinUI3XPLaunchProject>` property. Make sure you replace `$SampleAppProjectName` with the name of the sample app project. E.g. if your WinRT Component's project name is `Lib`, your sample app (test app)'s project name is `LibTest`, the correct property value is `LibTest`. If you do not want to edit project file directly, you can (1) install the nuget on your _WinUI 3 WinRT Component project_, (2) edit the property by right clicking the component project in Visual Studio -> Properties -> WinUI3XamlPreview tab -> edit Launch Project. Make sure you disable the preview to save compile time. See [Configuration](#Configuration) section for more details
-
-5. Viola! You have finished the setup for WinRT Component proejct Sample App mode.
+4. Viola! You have finished the setup for WinRT Component proejct Sample App mode.
 
 ### WinRT Component Project (Direct Mode)
 
