@@ -20,7 +20,7 @@ std::vector<wdxd::XmlAttribute> GetNamespaces(wdxd::XmlDocument const& doc)
     }
     return namespaces;
 }
-bool IsAttrValid(wdxd::XmlDocument const& doc, wdxd::XmlElement const& element, wdxd::XmlAttribute const& attr)
+bool IsAttrValid(wdxd::XmlDocument const& doc, wdxd::XmlElement const& element, wdxd::XmlAttribute const& attr, wdxd::XmlElement const& parent)
 {
     auto copied = element.CloneNode(false);
     auto attributes = copied.Attributes();
@@ -53,12 +53,18 @@ bool IsAttrValid(wdxd::XmlDocument const& doc, wdxd::XmlElement const& element, 
     {
         attributes.SetNamedItemNS(copiedAttr);
     }
+    auto root = parent == nullptr ? copied : [&parent, &copied]()
+        {
+            auto clonedParent = parent.CloneNode(false);
+            clonedParent.AppendChild(copied);
+            return clonedParent;
+        }();
     auto namespaces{ GetNamespaces(doc) };
     for (auto&& aNamespace : namespaces)
     {
-        copied.Attributes().SetNamedItemNS(aNamespace);
+        root.Attributes().SetNamedItemNS(aNamespace);
     }
-    auto xml = copied.GetXml();
+    auto xml = root.GetXml();
     try
     {
         muxm::XamlReader::Load(xml);
@@ -110,7 +116,7 @@ winrt::hstring FindControlTemplateStyleKey(wdxd::XmlElement const& templateEleme
     }
     return L"";
 }
-void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate, std::vector<CustomControlItemInfo>& customControlItems)
+void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate, std::vector<CustomControlItemInfo>& customControlItems,  wdxd::XmlElement const& attrValidationParent = nullptr)
 {
     for (auto&& node : candidate.ChildNodes())
     {
@@ -159,7 +165,7 @@ void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate,
             {
                 continue;
             }
-            auto isAttrValid = IsAttrValid(doc, element, attr);
+            auto isAttrValid = IsAttrValid(doc, element, attr, attrValidationParent);
             if (!isAttrValid)
             {
                 element.RemoveAttributeNode(attr);
@@ -175,7 +181,7 @@ void VisitAndTrim(wdxd::XmlDocument const& doc, wdxd::IXmlNode const& candidate,
                 }
             }
         }
-        VisitAndTrim(doc, element, customControlItems);
+        VisitAndTrim(doc, element, customControlItems, isControlTemplate ? element : nullptr);
     }
 }
 std::pair<std::wstring_view, std::wstring_view> SplitTargetTypeToNamespaceAndLocalName(std::wstring_view targetType)
