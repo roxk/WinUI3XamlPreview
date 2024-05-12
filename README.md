@@ -211,6 +211,6 @@ WinUI3XamlPreview tried to be clever and calls into `XamlMetadataProvider` to se
 
 One last piece of the puzzle comes from the fact to support control templates, we have to parse styles and find control template names and style names. So it turns out `Setter` cannot be used standalone and must be embeded as children of `Style` or `VisualStateManager`. Handling these exceptions make the parsing code feel more arbitrary, but is currently manageable.
 
-I'd like to mention a random limitation related to control template support: `Resources.Uri` doesn't support file path. It only supports `ms-appx` Uri. This makes control template rendering needlessly boilerplate-y since WinUI3XamlPreview now have to insert manualy load the resource dictionary, parse the XML, manipulate the XML tree, re-insert the dictionary to the tree containing the control, and so on.
+I'd like to mention a random limitation related to control template support: `Resources.Uri` doesn't support file path. It only supports `ms-appx` Uri. This makes control template rendering needlessly boilerplate-y since WinUI3XamlPreview now have to manually load the resource dictionary, parse the XML, manipulate the XML tree, re-insert the dictionary to the tree containing the control, and so on.
 
 But with all these efforts, the result is a fool-proof `XamlReader`. It seems WinUI3XamlPreview's trimmer sometimes prune valid attributes (e.g. in control templates), but the foundation should be reliable enough that fixing these doesn't require more ad-hoc element/attribute-specific handling.
