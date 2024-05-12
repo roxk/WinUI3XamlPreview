@@ -207,7 +207,7 @@ The obvious offenders are anything `x:` related. Attributes with `x:` prefix are
 
 Another is event binding. The doc says XAML shouldn't contain any event binding, and in early test it's found that event binding are simply silently ignored. But as development unfolds, WinUI3XamlPreview had encountered bugs where binding of a seemingly innocent event would cause `XamlReader` to throw. So it turns out any custom event would cause `XamlReader` to freak out.
 
-WinUI3XamlPreview tried to be clever and calls into `XamlMetadataProvider` to see if an event is custom, but it turns out there is no way to grab built-in control's provider, and even built-in control has unsupported events. The solution used is to parse each element and attribute _one by one_. If the attribute causes `XamlReader` to throw, it's discarded, otherwise it's kept.
+WinUI3XamlPreview tried to be clever and calls into `XamlMetadataProvider` to see if an event is custom, but it turns out there is no way to grab built-in control's provider, and even built-in control has unsupported events. To combat this, the solution is to parse each element and attribute _one by one_. If the attribute causes `XamlReader` to throw, it's discarded, otherwise it's kept.
 
 One last piece of the puzzle comes from the fact to support control templates, we have to parse styles and find control template names and style names. So it turns out `Setter` cannot be used standalone and must be embeded as children of `Style` or `VisualStateManager`. Handling these exceptions make the parsing code feel more arbitrary, but is currently manageable.
 
